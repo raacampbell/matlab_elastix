@@ -1,0 +1,367 @@
+
+# This YAML file contains the default parameters for Elastix
+# It is recomended that you do not edit this but work with copies
+# instead. The format of the file is as follows:
+#
+# KeyName:
+#   value: ValueOfKey
+#   valid: PossibleValuesOfKey  OR _@FunctionHandle
+#
+# The underscore before the @ is needed because the YAML reader won't process
+# keys that start with an @. If a function handle is provided, this is used as 
+# test for the correctness of value. 
+#
+# This file is processed by elastixYAML2struct.m
+
+
+#----------------------------------------------------------------------
+# **** ImageTypes ****
+# The dimensions of the fixed and moving image
+# NB: This has to be specified by the user. The dimension of the images is 
+# currently NOT read from the images. Also note that some other settings 
+# may have to specified for each dimension separately.
+# TODO: set this in elastix.m
+FixedImageDimension: 
+  value: 2
+  valid: _@isnumeric
+
+MovingImageDimension: 
+  value: 2
+  valid: _@isnumeric
+
+
+
+# Specify whether you want to take into account the so-called
+# direction cosines of the images. Recommended: true.
+# In some cases, the direction cosines of the image are corrupt,
+# due to image format conversions for example. In that case, you 
+# may want to set this option to "false".
+# TODO: these convert to logicals. is that OK?
+UseDirectionCosines: 
+  value: true
+  valid: _@islogical
+
+
+
+
+#----------------------------------------------------------------------
+# **** Main Components ****
+# The following components should usually be left as they are:
+Registration:  
+  value: MultiResolutionRegistration
+  valid: _@isstr
+
+Interpolator:  
+  value: BSplineInterpolator
+  valid: _@isstr
+
+ResampleInterpolator:
+  value: FinalBSplineInterpolator
+  valid: _@isstr
+
+Resampler:  
+  value: DefaultResampler
+  valid: _@isstr
+
+# These may be changed to Fixed/MovingSmoothingImagePyramid.
+# See the manual. TODO: get options
+FixedImagePyramid:  
+#  value: FixedRecursiveImagePyramid
+#  valid: 
+
+MovingImagePyramid:  
+  #value: MovingRecursiveImagePyramid
+  #valid: 
+
+# The following components are most important:
+# The optimizer AdaptiveStochasticGradientDescent (ASGD) works
+# well in general. The Transform and Metric are important
+# and need to be chosen careful for each application. See manual.
+Optimizer:  
+  value: StandardGradientDescent
+  valid: [StandardGradientDescent,AdaptiveStochasticGradientDescent]
+
+
+#Very important! The type of tranform. 
+#Euler is rigid
+#Affine is non-rigid by still linear
+#BSpline is non-linear (i.e. local deformations are possible)
+Transform:
+  value: BSplineTransform
+  valid: [EulerTransform,AffineTransform,BSplineTransform,BSplineStackTransform]
+
+Metric:
+  value: AdvancedMattesMutualInformation
+  valid: _@isstr
+
+#----------------------------------------------------------------------
+# **** Transformation [euler] ****
+# The following parameters are used in euler transforms
+
+
+# scales
+# If only one argument is given, that factor is used for the rotations. If 
+# more than one argument is given, then the number of arguments should be equal 
+# to the number of parameters: for each parameter its scale factor. If this parameter 
+# option is not used, by default the rotations are scaled by a factor of 100000.0. 
+# See also the AutomaticScalesEstimation parameter. 
+Scales:
+#   value: Scales 200000.0
+#   value: [100000.0 60000.0 ... 80000.0]
+    valid: _@isnumeric
+
+
+#if this parameter is set to "true" the Scales parameter is ignored and the scales are determined automatically.
+#recommended value is true
+AutomaticScalesEstimation: 
+    value: true
+    valid: _@islogical
+
+
+# an index around which the image is rotated.
+#  By default the CenterOfRotation is set to the geometric center of the image. 
+CenterOfRotation: 
+    #value: [128 128 90]
+    #valid: _@isnumeric
+
+
+#Auto-calculate initial params
+AutomaticTransformInitialization: 
+    value: false
+    valid: _@islogical
+
+# how to initialize this transform. Should be one of {GeometricalCenter, CenterOfGravity}.
+AutomaticTransformInitializationMethod: 
+    value: CenterOfGravity
+    valid: [GeometricalCenter,CenterOfGravity]
+
+# Whether transforms are combined by composition or by addition.
+# In generally, Compose is the best option in most cases.
+# It does not influence the results very much.
+HowToCombineTransforms:  
+  value: Compose
+  valid: _@isstr #TODO: CHECK!
+
+
+
+
+#----------------------------------------------------------------------
+# **** Similarity Measure ****
+# Number of grey level bins in each resolution level,
+# for the mutual information. 16 or 32 usually works fine.
+# The elastix default is 32 and we explicitly set this here.
+# You could also employ a hierarchical strategy. Uncomment
+# as needed:
+NumberOfMovingHistogramBins:
+  #value: [16 32 64]
+  value: 32
+  valid: _@isnumeric
+
+NumberOfFixedHistogramBins:
+  #value: [16 32 64]
+  value: 32
+  valid: _@isnumeric
+
+# If you use a mask, this option is important. 
+# If the mask serves as region of interest, set it to false.
+# If the mask indicates which pixels are valid, then set it to true.
+# If you do not use a mask, the option doesn't matter.
+ErodeMask:
+  value: true
+  valid: _@islogical
+
+
+
+#----------------------------------------------------------------------
+# **** Multi-Resolution ****
+# The number of resolutions. 1 Is only enough if the expected
+# deformations are small. 3 or 4 mostly works fine. For large
+# images and large deformations, 5 or 6 may even be useful.
+NumberOfResolutions: 
+  value: 5
+  valid: _@isnumeric
+
+
+# The downsampling/blurring factors for the image pyramids.
+# By default, the images are downsampled by a factor of 2
+# compared to the next resolution.
+# So, in 2D, with 4 resolutions, the following schedule is used:
+ImagePyramidSchedule: 
+  value: [8,8,  4,4, 2,2, 1,1] #for 2D
+  #value: [8,8,8, 4,4,4, 2,2,2, 1,1,1]  #for 3D
+  valid: _@isnumeric
+
+# Note that you can specify any schedule, for example:
+# value: [4,4, 4,3, 2,1, 1,1]
+# Make sure that the number of elements equals the number
+# of resolutions times the image dimension.
+
+
+
+
+#----------------------------------------------------------------------
+# **** Optimizer ****
+# Maximum number of iterations in each resolution level:
+# 200-500 works usually fine for affine and non-rigid registration.
+# For more robustness, you may increase this to 1000-2000. The
+# more, the better, but the longer computation time. This is an
+# important parameter!
+MaximumNumberOfIterations: 
+  value: 400
+  #value: [300,300,600] #for multiple resolution levels?
+  valid:  _@isnumeric
+
+
+# The step size of the optimizer, in mm. By default the voxel size is used.
+# which usually works well. In case of unusual high-resolution images
+# (eg histology) it is necessary to increase this value a bit, to the size
+# of the "smallest visible structure" in the image:
+MaximumStepLength:  
+  #value: 50.0
+  #valid: _@isnumeric
+
+
+
+#----------------------------------------------------------------------
+# **** Image Sampling ****
+# Number of spatial samples used to compute the mutual information 
+# (and its derivative) in each iteration. With an 
+# AdaptiveStochasticGradientDescent optimizer,
+# in combination with the two options below, around 2000
+# samples may already suffice.
+NumberOfSpatialSamples:  
+  value: 200
+  valid: _@isnumeric 
+
+# Refresh these spatial samples in every iteration, and select them 
+# randomly. See the manual for information on other sampling strategies.
+NewSamplesEveryIteration:  
+  value: true
+  valid: _@islogical
+
+ImageSampler:  
+  value: Random
+  valid: _@isstr #TODO: replace with other stratergies
+
+
+
+#----------------------------------------------------------------------
+# **** Interpolation and Resampling ****
+# Order of B-Spline interpolation used during registration/optimisation.
+# It may improve accuracy if you set this to 3. Never use 0.
+# An order of 1 gives linear interpolation. This is in most 
+# applications a good choice.
+BSplineInterpolationOrder:
+  value: 1
+  valid: [1,3]
+
+
+# Order of B-Spline interpolation used for applying the final
+# deformation.
+# 3 gives good accuracy; recommended in most cases.
+# 1 gives worse accuracy (linear interpolation)
+# 0 gives worst accuracy, but is appropriate for binary images
+# (masks, segmentations); equivalent to nearest neighbor interpolation.
+FinalBSplineInterpolationOrder:  
+  value: 3
+  valid: [0,1,3]
+
+#Default pixel value for pixels that come from outside the picture:
+DefaultPixelValue: 
+  value: 0
+  valid: _@isnumeric
+
+
+# Choose whether to generate the deformed moving image.
+# You can save some time by setting this to false, if you are
+# only interested in the final (nonrigidly) deformed moving image
+# for example.
+WriteResultImage: 
+  value: true
+  valid: _@islogical
+
+# The pixel type and format of the resulting deformed moving image
+ResultImagePixelType: 
+  value: short
+  valid: [short,double] #TODO check that is right
+
+ResultImageFormat: 
+  value: mhd
+  valid: _@isstr #TODO: CHECK which options it allows
+
+
+
+#----------------------------------------------------------------------
+# **** Optimiser Parameters ****
+# These are important. 
+
+#SP: Param_a in each resolution level. a_k = a/(A+k+1)^alpha
+SP_a:  
+  value: 500.0
+  valid: _@isnumeric
+
+#SP: Param_alpha in each resolution level. a_k = a/(A+k+1)^alpha
+SP_alpha:
+  value: 0.60
+  valid: _@isnumeric
+
+#SP: Param_A in each resolution level. a_k = a/(A+k+1)^alpha
+SP_A:
+  value: 50.0
+  valid: _@isnumeric
+
+
+
+#----------------------------------------------------------------------
+# **** Misc. ****
+WriteTransformParametersEachIteration: 
+  value: false
+  valid: _@islogical
+
+WriteTransformParametersEachResolution:
+  value: false
+  valid: _@islogical
+ShowExactMetricValue:
+  value: false
+  valid: _@islogical
+
+#Note sure what the following do
+FixedKernelBSplineOrder:
+#  value: 3
+#  valid: [0,1,3]
+
+MovingKernelBSplineOrder:
+#  value: 3
+#  valid: [0,1,3]
+
+
+
+
+
+
+
+#----------------------------------------------------------------------
+# **** Settings you probably should not mess with ****
+
+# The internal pixel type, used for internal computations
+# Generally this should be left as "float." 
+# NB: this is not the type of the input images! The pixel 
+# type of the input images is automatically read from the 
+# images themselves.
+# This setting can be changed to "short" to save some memory
+# in case of very large 3D images.
+FixedInternalImagePixelType: 
+  value: float
+  valid: [float,short]
+
+MovingInternalImagePixelType: 
+  value: float
+  valid: [float,short]
+
+
+
+# Leave this as false. MelastiX does not know how to read compressed images
+CompressResultImage:
+  value: false
+  valid: _@islogical
+
