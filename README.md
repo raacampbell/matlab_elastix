@@ -11,8 +11,8 @@ MelastiX is a collection of wrappers for the open source image registration suit
 4. Handles both 2D and 3D data. Examples are only 2D, though.
 
 ## What does it not do?
-
 At the moment MelastiX does not provide tools to:
+
 1. Transform sparse points with transformix
 2. Perform inverse transforms
 3. Analyse transform parameters. 
