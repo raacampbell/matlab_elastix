@@ -38,14 +38,13 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,paramStruc
 %               of elastix parameter file names. If a cell array, these are applied in 
 %               order. Names must end with ".txt"
 %
-% paramStruct - structure containing parameter values for the
-%          registration. This is used to modify specific paramater which may 
-%          already have been defined by the .yml (paramFile). paramStruct can have a 
-%          length>1, in which case these structures are treated as a request for multiple
-%          sequential registration operations. The identity of the transform type is 
-%          defined here. The possible values for fields in the the structure can be found 
-%          in elastix_default.yml paramStruct is ignored if paramFile is an elastix 
-%          parameter file.
+% paramStruct - structure containing parameter values for the registration. This is used 
+%          to modify specific parameters which may already have been defined by the .yml 
+%          (paramFile). paramStruct can have a length>1, in which case these structures 
+%          are treated as a request for multiple sequential registration operations. The 
+%          possible values for fields in the the structure can be found in 
+%          elastix_default.yml 
+%          *paramStruct is ignored if paramFile is an elastix parameter file.*
 %
 %
 % 
@@ -158,14 +157,17 @@ if isstr(paramFile) & strfind(paramFile,'.yml') & ~isempty(paramStruct) %modify 
         paramFname{ii}=sprintf('%s_parameters_%d.txt',dirName,ii);
         elastix_parameter_write([outputDir,filesep,paramFname{ii}],paramFile,paramStruct(ii))
     end
+
 elseif isstr(paramFile) & strfind(paramFile,'.yml') & isempty(paramStruct) %read YAML with no modifications
     paramFname{1}=sprintf('%s_parameters_%d.txt',dirName,1);
     elastix_parameter_write([outputDir,filesep,paramFname{1}],paramFile)
+
 elseif (isstr(paramFile) & strfind(paramFile,'.txt')) %we have an elastix parameter file
     paramFname{1} = paramFile;
     if ~strcmp(outputDir,'.')
         copyfile(paramFname{1},outputDir)
     end
+
 elseif iscell(paramFile) %we have a cell array of elastix parameter files
     paramFname = paramFile;
      if ~strcmp(outputDir,'.') 
@@ -173,6 +175,7 @@ elseif iscell(paramFile) %we have a cell array of elastix parameter files
             copyfile(paramFname{ii},outputDir)
         end
     end
+
 else
     error('paramFile format not understood')    
 end
