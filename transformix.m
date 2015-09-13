@@ -129,7 +129,7 @@ if nargin>1
     end
 
 
-    %Write the matrix to the temporary directory
+    %Write the movingImage matrix to the temporary directory
     if ~isempty(movingImage)
         movingFname=[outputDir,filesep,'tmp_moving'];
         mhd_write(movingImage,movingFname);

@@ -12,7 +12,7 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,paramStruc
 %
 % Examples
 % elastix('version')   %prints the version of elastix on your system and exits
-% elastix('help')      %prints the elastix help and exits
+% elastix('help')      %prints the elastix binary's help and exits
 %
 %
 % Inputs
@@ -25,9 +25,9 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,paramStruc
 %               movingImage to match. 
 %
 % outputDir -   If empty, a temporary directory with a unique name is created 
-%               and deleted once the analysis is complete. If a valid path is entered
+%               and deleted once the analysis is complete. If a *valid path* is entered
 %               then the directory is not deleted. If a directory is defined and it 
-%               does not exist then it is created. The directory is never deleted if no
+%               does not exist then it is created. The directory is *never deleted* if no
 %               outputs are requested.
 %
 % paramFile - a) A string defining the name of the YAML file that contains the registration 
