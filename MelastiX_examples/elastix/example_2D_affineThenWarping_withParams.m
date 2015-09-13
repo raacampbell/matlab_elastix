@@ -32,23 +32,9 @@ imagesc(lenaTrans), axis off equal
 title('Transformed')
 drawnow
 
-%define the two sets of transforms
-n=1;
-p(n).Transform='AffineTransform';
-p(n).MaximumNumberOfIterations=400;
-p(n).NumberOfSpatialSamples=1E3;
-
-n=2;
-p(n).Transform='BSplineTransform';
-p(n).MaximumNumberOfIterations=1E3;
-p(n).NumberOfSpatialSamples=p(1).NumberOfSpatialSamples;
-p(n).SP_a=4000;
-
-
 tic
 fprintf('\nStarting registration\n')
-paramsReporter(p)
-[~,out]=elastix(lenaTrans,lena,[],{'AtW_parameters_1.txt','AtW_parameters_2.txt'},p);
+[~,out]=elastix(lenaTrans,lena,[],{'AtW_parameters_1.txt','AtW_parameters_2.txt'});
 fprintf('Finished registration in %d seconds\n', round(toc))
 
 
