@@ -11,6 +11,14 @@ function varargout=transformix(movingImage,parameters)
 %
 %
 % Inputs
+% * When called with TWO input arguments:
+%    movingImage - a) A 2D or 3D matrix corresponding to a 2D image or a 3D volume.  
+%                     This is the image that you want to align.
+%                  b) If empty, transformix returns all the warped control points. 
+%    parameters - a) output structure from elastix.m
+%                 b) path to a parameter text file produced by elastix. Will work only
+%                    if a single parameter file is all that is needed. 
+%
 % * When called with ONE input argument
 %    movingImage - is a path to the output directory created by elastix. transformix
 %                 will apply the last parameter structure present in that directory to a
@@ -21,21 +29,16 @@ function varargout=transformix(movingImage,parameters)
 %                 e.g. 
 %                 out = elastix(imM,imF);
 %                 corrected = transformix(out.outputDir;)
-%                 NOTE the elastix automatically produces the transformed image, so this
+%                 NOTE the elastix command automatically produces the transformed image, so this
 %                 mode of operation for transformix.m is unlikely to be needed often.
 %
-% * When called with TWO input arguments:
-%    movingImage - a) A 2D or 3D matrix corresponding to a 2D image or a 3D volume.  
-%                     This is the image that you want to align.
-%                  b) If empty, transformix returns all the warped control points. 
-%    parameters - a) output structure from elastix.m
-%                 b) path to a parameter text file produced by elastix. Will work only
-%                    if a single parameter file is all that is needed. 
 %
+% Implementation details
 %  The MHD files and other data are written to a temporary directory that is 
-%  cleaned up on exit. This mode allows the user to delete the data from their elastix 
-%  run and freely transform the moving image according to transform parameters they
-%  have already calculated. 
+%  cleaned up on exit. This allows the user to delete the data from their elastix 
+%  run and transform the moving image according to transform parameters they
+%  have already calculated as needed. This saves disk space at the expense of 
+%  computation time. 
 %
 % Note that the parameters argument is *NOT* the same as the parameters provided to 
 % elastix (the YAML file). Instead, it is the output of the elastix command that 
@@ -57,8 +60,7 @@ function varargout=transformix(movingImage,parameters)
 % Dependencies
 % - elastix and transformix binaries in path
 % - image processing toolbox (to run examples)
-%
-%
+
 
 
 %Confirm that the transformix binary is present
@@ -73,7 +75,7 @@ if nargin==0
     movingImage=pwd;
 end
 
-%Handle case where the user supplies a path to a directory
+%Handle case where the user supplies only a path to a directory
 if nargin==1 
     if isstr(movingImage)
         if ~exist(movingImage,'dir')
@@ -114,9 +116,9 @@ end
 
 
 
-%Handle case 2, where the user supplies a matrix and a parameters structure from an elastix run.
+%Handle case, where the user supplies a matrix and a parameters structure from an elastix run.
 %This mode allows the user to have deleted their elastix data and just keep the parameters.
-if nargin==2
+if nargin>1
     outputDir=sprintf('/tmp/transformix_%s_%d', datestr(now,'yymmddHHMMSS'), round(rand*1E8)); 
     if ~exist(outputDir)
         if ~mkdir(outputDir)
@@ -207,6 +209,7 @@ if nargin==2
    rmdir(outputDir,'s')
 end
 %----------------------------------------------------------------------
+
 
 if nargout>0
     varargout{1}=registered;
