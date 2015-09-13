@@ -35,6 +35,9 @@ function varargout=transformix(movingImage,parameters)
 %                 NOTE the elastix command automatically produces the transformed image, so this
 %                 mode of operation for transformix.m is unlikely to be needed often.
 %
+% * Transforming points
+%  To transform sparse points, movingImage should be an n-by-2 or n-by-3 array
+%
 %
 % Implementation details
 %  The MHD files and other data are written to a temporary directory that is 
@@ -159,12 +162,18 @@ if nargin>1
 
 
     %Write the movingImage matrix to the temporary directory
-    if ~isempty(movingImage)
-        movingFname=[outputDir,filesep,'tmp_moving'];
+    if isempty(movingImage)
+        CMD = 'transformix ';
+    elseif size(movingImage,2)>3 %It's an image
+        movingFname=fullfile(outputDir,'tmp_moving');
         mhd_write(movingImage,movingFname);
         CMD = sprintf('transformix -in %s.mhd ',movingFname);
+    elseif size(movingImage,2)==2 | size(movingImage,2)==3 %It's sparse points
+        movingFname=fullfile(outputDir,'tmp_moving.txt');
+        writePointsFile(movingFname)
+        CMD = sprintf('transformix -def %s ',movingFname);
     else
-        CMD = 'transformix ';
+        error('Unknown format for movingImage')
     end
     CMD = sprintf('%s-out %s ',CMD,outputDir);
 
@@ -218,8 +227,6 @@ if nargin>1
 end
 
 
-
-return
 
 
 %----------------------------------------------------------------------
