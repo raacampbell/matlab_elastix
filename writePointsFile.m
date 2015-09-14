@@ -38,8 +38,10 @@ fid = fopen(fname,'w+');
 
 fprintf(fid,'%s\n%d\n',pointType,size(data,1));
 
+formatStr = repmat('%f ',[1,size(data,2)]);
 for ii=1:size(data,1)
-    fprintf(fid,'%f %f %f\n', data(ii,:));
+
+    fprintf(fid,[formatStr,'\n'], data(ii,:));
 end
 
 fclose(fid);
