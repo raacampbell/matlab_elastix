@@ -1,8 +1,8 @@
-function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,paramStruct)
+function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,varargin)
 % elastix image registration and warping wrapper
 %
-% function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,paramStruct)
-%
+% function varargout=elastix(movingImage,fixedImage,outputDir,paramFile)
+%          varargout=elastix(movingImage,fixedImage,outputDir,paramFile,'PARAM1',val1,...)
 % Purpose
 % Wrapper for elastix image registration package. This function calls the elastix
 % binary (needs to be in the system path) to conduct the registration and produce
@@ -13,9 +13,10 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,paramStruc
 % Examples
 % elastix('version')   %prints the version of elastix on your system and exits
 % elastix('help')      %prints the elastix binary's help and exits
-%
-%
-% Inputs
+% elastix(movImage,refImage,[],'elastix_settings.yml')
+% elastix(movImage,refImage,[],'elastix_settings.yml', 'paramstruct', modifierStruct)
+% 
+% Inputs [required]
 % movingImage - A 2D or 3D matrix corresponding to a 2D image or a 3D volume. 
 %               This is the image that you want to align.
 %
@@ -27,7 +28,7 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,paramStruc
 % outputDir -   If empty, a temporary directory with a unique name is created 
 %               and deleted once the analysis is complete. If a *valid path* is entered
 %               then the directory is not deleted. If a directory is defined and it 
-%               does not exist then it is created. The directory is *never deleted* if no
+%               does not exist then a temporary one is created. The directory is *never deleted* if no
 %               outputs are requested.
 %
 % paramFile - a) A string defining the name of the YAML file that contains the registration 
@@ -38,15 +39,22 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,paramStruc
 %               of elastix parameter file names. If a cell array, these are applied in 
 %               order. Names must end with ".txt"
 %
-% paramStruct - structure containing parameter values for the registration. This is used 
+% 
+% Inputs [optional]
+% paramstruct - structure containing parameter values for the registration. This is used 
 %          to modify specific parameters which may already have been defined by the .yml 
-%          (paramFile). paramStruct can have a length>1, in which case these structures 
+%          (paramFile). paramstruct can have a length>1, in which case these structures 
 %          are treated as a request for multiple sequential registration operations. The 
 %          possible values for fields in the the structure can be found in 
 %          elastix_default.yml 
-%          *paramStruct is ignored if paramFile is an elastix parameter file.*
+%          *paramstruct is ignored if paramFile is an elastix parameter file.*
 %
-%
+% threads - How many threads to run the registration on. by default all available cores 
+%           will be used.
+% t0      - Relative or absolute path(s) (string or cell array of strings) to files 
+%           defining the initial transform. If transforms are to be chained, list then 
+%           in reverse order (e.g. bspline then affine).
+%            
 % 
 % Outputs
 % registered - the final registered image
@@ -107,7 +115,7 @@ if strcmp(outputDir(end),filesep) %Chop off any trailing fileseps
     outputDir(end)=[];
 end
 
-if ~exist(outputDir)
+if ~exist(outputDir) | isempty(outputDir)
     if ~mkdir(outputDir)
         error('Can''t make data directory %s',outputDir)
     end
@@ -118,7 +126,34 @@ if nargin<4
 end
 
 if nargin<5
-    paramStruct=[];
+    paramstruct=[];
+end
+
+
+%Handle parameter/value pairs
+p = inputParser;
+addOptional(p,'threads', [], @isnumeric)
+addOptional(p,'t0', [])
+addOptional(p,'verbose',0)
+addOptional(p,'paramstruct', [], @isstruct)
+parse(p,varargin{:})
+threads = p.Results.threads;
+t0 = p.Results.t0;
+paramstruct = p.Results.paramstruct;
+verbose = p.Results.verbose;
+
+%error check: confirm initial parameter files exist
+if ~isempty(t0)
+    if isstr(t0) 
+       t0 = {t0}; %just to make later code neater
+    end
+
+    for ii = 1:length(t0)
+        if ~exist(t0{ii},'file')
+            print('Can not find initial transform %s\n', t0{ii})
+            return
+        end
+    end    
 end
 
 
@@ -152,13 +187,13 @@ end
 
 
 %Build the parameter file(s)
-if isstr(paramFile) & strfind(paramFile,'.yml') & ~isempty(paramStruct) %modify settings from YAML with paramStruct
-    for ii=1:length(paramStruct)
+if isstr(paramFile) & strfind(paramFile,'.yml') & ~isempty(paramstruct) %modify settings from YAML with paramstruct
+    for ii=1:length(paramstruct)
         paramFname{ii}=sprintf('%s_parameters_%d.txt',dirName,ii);
-        elastix_parameter_write([outputDir,filesep,paramFname{ii}],paramFile,paramStruct(ii))
+        elastix_parameter_write([outputDir,filesep,paramFname{ii}],paramFile,paramstruct(ii))
     end
 
-elseif isstr(paramFile) & strfind(paramFile,'.yml') & isempty(paramStruct) %read YAML with no modifications
+elseif isstr(paramFile) & strfind(paramFile,'.yml') & isempty(paramstruct) %read YAML with no modifications
     paramFname{1}=sprintf('%s_parameters_%d.txt',dirName,1);
     elastix_parameter_write([outputDir,filesep,paramFname{1}],paramFile)
 
@@ -181,13 +216,45 @@ else
 end
 
 
+%If the user asked for an initial transform, collate the transform files, copy them to the 
+%transform directory, and ensure they are linked.
+if ~isempty(t0)
+    copiedLocations = {}; %Keep track of the locations to which the files are stored
+    for ii=1:length(t0)
+        [fPath,pName,pExtension] = fileparts(t0{ii});
+        copiedLocations{ii} = fullfile(outputDir,['init_',pName,pExtension]);
+        if verbose
+            fprintf('Copying %s to %s\n',t0{ii},copiedLocations{ii})
+        end
+        copyfile(t0{ii},copiedLocations{ii})
+    end
+
+    %Modify the parameter files so that they chain together correctly
+    for ii=1:length(t0)-1
+        changeParameterInElastixFile(copiedLocations{ii},'InitialTransformParametersFileName',copiedLocations{ii+1},verbose)
+    end
+
+    %Add the first parameter file to the command string 
+    initCMD = sprintf(' -t0 %s ',copiedLocations{1});
+else
+    initCMD = '';
+end
 
 
-% Build the the appropriate command
+
+%Build the the appropriate command
 CMD=sprintf('elastix -f %s%s%s.mhd -m %s%s%s.mhd -out %s ',...
             outputDir,filesep,targetFname,...
             outputDir,filesep,movingFname,...
             outputDir);
+CMD = [CMD,initCMD];
+
+
+if ~isempty(threads)
+    CMD = sprintf('%s -threads %d',CMD,threads)
+end
+
+
     
 %Loop through, adding each parameter file in turn to the string
 for ii=1:length(paramFname) 

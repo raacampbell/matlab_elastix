@@ -1,22 +1,19 @@
 
 function RUN_ALL
 
+str = '  ====> PRESS RETURN <====  ';
+
 example_2D_affine_nSpatialSamples
-disp('PRESS RETURN')
-pause
+disp(str), pause
 
 example_2D_affine_alpha
-disp('PRESS RETURN')
-pause
+disp(str), pause
 
 example_2D_warping
-disp('PRESS RETURN')
-pause
+disp(str), pause
 
 example_2D_affineThenWarping
-disp('PRESS RETURN')
-pause
+disp(str), pause
 
 example_2D_affineThenWarping_withParams
-disp('PRESS RETURN')
 
