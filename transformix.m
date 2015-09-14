@@ -226,7 +226,7 @@ if nargin>1
         end
 
         %Add the first parameter file to the command string 
-        CMD=sprintf('%s-tp %s ',CMD,copiedLocations{1});
+        CMD=sprintf('%s -tp %s ',CMD,copiedLocations{1});
 
     else
         error('Parameters is of unknown type')
