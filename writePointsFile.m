@@ -20,7 +20,9 @@ function writePointsFile(fname,data,pointType)
 %
 % Rob Campbell - Basel 2015
 
-
+if ~isstr(fname)
+	error('fname must be a string that defines a path to a file')
+end
 
 if nargin<3
     pointType='point';

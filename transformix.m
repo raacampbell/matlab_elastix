@@ -93,7 +93,7 @@ if nargin==0
 end
 
 if nargin<3
-    verboes=0;
+    verbose=0;
 end
 
 %Handle case where the user supplies only a path to a directory
@@ -175,7 +175,7 @@ if nargin>1
         CMD = sprintf('transformix -in %s.mhd ',movingFname);
     elseif size(movingImage,2)==2 | size(movingImage,2)==3 %It's sparse points
         movingFname=fullfile(outputDir,'tmp_moving.txt');
-        writePointsFile(movingFname)
+        writePointsFile(movingFname,movingImage)
         CMD = sprintf('transformix -def %s ',movingFname);
     else
         error('Unknown format for movingImage')
@@ -255,12 +255,24 @@ if status %Things failed. Oh dear.
 
 else %Things worked! So let's return the transformed image to the user. 
     disp(result)
-    if ~isempty(movingImage)
-        d=dir([outputDir,filesep,'result.mhd']); 
+    if size(movingImage,2)>3 & ~isempty(movingImage)
+        d=dir(fullfile(outputDir,'result.mhd')); 
+    elseif size(movingImage,2)<=3 & ~isempty(movingImage)
+        d=dir(fullfile(outputDir,'outputpoints.txt')); 
     else
-        d=dir([outputDir,filesep,'deformationField.mhd']); 
+        d=dir(fullfile(outputDir,'deformationField.mhd')); 
     end
-    registered=mhd_read([outputDir,filesep,d.name]);
+
+    if isempty(d)
+        error('Failed to find transformed result. Retaining output directory for debugging purposes.')
+    end
+
+    if size(movingImage,2)>3 %It's an image
+        registered=mhd_read(fullfile(outputDir,d.name));
+    else %it's a points file
+        registered=readTransformedPointsFile(fullfile(outputDir,d.name));
+    end
+        
     transformixLog=readWholeTextFile([outputDir,filesep,'transformix.log']);
 end
 
