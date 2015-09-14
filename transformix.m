@@ -1,4 +1,4 @@
-function varargout=transformix(movingImage,parameters)
+function varargout=transformix(movingImage,parameters,verbose)
 % transformix image registration and warping wrapper
 %
 % function varargout=transformix(movingImage,parameters) 
@@ -21,6 +21,7 @@ function varargout=transformix(movingImage,parameters)
 %                    is all that is needed. In cases where you want to chain transforms,
 %                    supply a cell array of relative paths ordered from the last 
 %                    transform on the list to the first (see below)
+%   verbose - [optional, 0 by default] if 1, some debugging information is printed.
 %
 % * When called with ONE input argument
 %    movingImage - is a path to the output directory created by elastix. transformix
@@ -89,6 +90,10 @@ end
 
 if nargin==0
     movingImage=pwd;
+end
+
+if nargin<3
+    verboes=0;
 end
 
 %Handle case where the user supplies only a path to a directory
@@ -198,23 +203,30 @@ if nargin>1
         CMD=sprintf('%s-tp %s ',CMD,transParamsFname{end});
 
     elseif isstr(parameters)
+        if verbose
+            fprintf('Copying %s to %s\n',parameters,outputDir)
+        end
         copyfile(parameters,outputDir) %We've already tested if the parameters file exists    
         CMD=sprintf('%s-tp %s ',CMD,fullfile(outputDir,parameters));
 
     elseif iscell(parameters)
-        %Add the first parameter file to the command string 
-        CMD=sprintf('%s-tp %s ',CMD,fullfile(outputDir,parameters{1}));
         %copy parameter files
         copiedLocations = {}; %Keep track of the locations to which the files are stored
         for ii=1:length(parameters)
+            if verbose
+                fprintf('Copying %s to %s\n',parameters{ii},outputDir)
+            end
             copyfile(parameters{ii},outputDir)
             [fPath,pName,pExtension] = fileparts(parameters{ii});
             copiedLocations{ii} = fullfile(outputDir,[pName,pExtension]);
         end
         %Modify the parameter files so that they chain together correctly
         for ii=1:length(parameters)-1
-            changeParameterInElastixFile(copiedLocations{ii},'InitialTransformParametersFileName',copiedLocations{ii+1})
+            changeParameterInElastixFile(copiedLocations{ii},'InitialTransformParametersFileName',copiedLocations{ii+1},verbose)
         end
+
+        %Add the first parameter file to the command string 
+        CMD=sprintf('%s-tp %s ',CMD,copiedLocations{1});
 
     else
         error('Parameters is of unknown type')
