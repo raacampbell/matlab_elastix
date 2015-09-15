@@ -3,6 +3,10 @@ function out=readTransformedPointsFile(fname)
 %
 % function out=readTransformedPointsFile(fname)	
 %
+% Inputs
+% fname - string defining a relative or absolute path to a transformix points file
+%
+%
 % example
 % out = readTransformedPointsFile('outputpoints.txt')
 % 
@@ -39,11 +43,13 @@ while isstr(tline)
     tok=regexp(tline,'; (\w+) = \[ (.*?) \]','tokens');
 
     for ii=1:length(tok)
+        tmp=str2num(str2mat(tok{ii}{2}));
     	if n==1 %pre-allocate
-    		out.(tok{ii}{1}) = ones(numLines,3);
+    		out.(tok{ii}{1}) = ones(numLines,size(tmp,2));
     	end
 
-    	out.(tok{ii}{1})(n,:) = str2num(str2mat(tok{ii}{2}));
+    	out.(tok{ii}{1})(n,:) = tmp;
+
     end
 
 	tline = fgetl(fid);

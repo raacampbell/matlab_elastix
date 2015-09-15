@@ -47,7 +47,7 @@ p(n).SP_a=4000;
 tic
 fprintf('\nStarting registration\n')
 paramsReporter(p)
-[~,out]=elastix(lenaTrans,lena,[],'elastix_default.yml',p);
+[~,out]=elastix(lenaTrans,lena,[],'elastix_default.yml','paramstruct',p);
 fprintf('Finished registration in %d seconds\n', round(toc))
 
 

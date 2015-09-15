@@ -1,4 +1,4 @@
-function varargout=transformix(movingImage,parameters)
+function varargout=transformix(movingImage,parameters,verbose)
 % transformix image registration and warping wrapper
 %
 % function varargout=transformix(movingImage,parameters) 
@@ -16,8 +16,12 @@ function varargout=transformix(movingImage,parameters)
 %                     This is the image that you want to align.
 %                  b) If empty, transformix returns all the warped control points. 
 %    parameters - a) output structure from elastix.m
-%                 b) path to a parameter text file produced by elastix. Will work only
-%                    if a single parameter file is all that is needed. 
+%                 b) absolute or relative path to a transform parameter text file 
+%                    produced by elastix. Will work only if a single parameter file 
+%                    is all that is needed. In cases where you want to chain transforms,
+%                    supply a cell array of relative paths ordered from the last 
+%                    transform on the list to the first (see below)
+%   verbose - [optional, 0 by default] if 1, some debugging information is printed.
 %
 % * When called with ONE input argument
 %    movingImage - is a path to the output directory created by elastix. transformix
@@ -32,6 +36,9 @@ function varargout=transformix(movingImage,parameters)
 %                 NOTE the elastix command automatically produces the transformed image, so this
 %                 mode of operation for transformix.m is unlikely to be needed often.
 %
+% * Transforming points
+%  To transform sparse points, movingImage should be an n-by-2 or n-by-3 array
+%
 %
 % Implementation details
 %  The MHD files and other data are written to a temporary directory that is 
@@ -43,6 +50,16 @@ function varargout=transformix(movingImage,parameters)
 % Note that the parameters argument is *NOT* the same as the parameters provided to 
 % elastix (the YAML file). Instead, it is the output of the elastix command that 
 % describes the calculated transformation between the fixed image and the moving image.
+%
+%
+% Examples
+% reg=transformix(imageToTransform,paramStructure);
+%
+% reg=transformix(imageToTransform,'/path/to/TransformParameters.0.txt');
+%
+% params = {'/path/to/TransformParameters.1.txt', '/path/to/TransformParameters.0.txt'};
+% reg=transformix(imageToTransform,params);
+%
 %
 %
 % Rob Campbell - Basel 2015
@@ -73,6 +90,10 @@ end
 
 if nargin==0
     movingImage=pwd;
+end
+
+if nargin<3
+    verbose=0;
 end
 
 %Handle case where the user supplies only a path to a directory
@@ -119,6 +140,22 @@ end
 %Handle case, where the user supplies a matrix and a parameters structure from an elastix run.
 %This mode allows the user to have deleted their elastix data and just keep the parameters.
 if nargin>1
+
+    %error check: confirm parameter files exist
+    if isstr(parameters) & ~exist(parameters,'file')
+        print('Can not find %s\n', parameters)
+        return
+    end
+    if iscell(parameters)
+        for ii = 1:length(parameters)
+            if ~exist(parameters{ii},'file')
+                print('Can not find %s\n', parameters{ii})
+                return  
+            end
+        end
+    end
+
+    %MATLAB should figure out the correct temporary directory on Windows
     outputDir=sprintf('/tmp/transformix_%s_%d', datestr(now,'yymmddHHMMSS'), round(rand*1E8)); 
     if ~exist(outputDir)
         if ~mkdir(outputDir)
@@ -130,12 +167,18 @@ if nargin>1
 
 
     %Write the movingImage matrix to the temporary directory
-    if ~isempty(movingImage)
-        movingFname=[outputDir,filesep,'tmp_moving'];
+    if isempty(movingImage)
+        CMD = 'transformix ';
+    elseif size(movingImage,2)>3 %It's an image
+        movingFname=fullfile(outputDir,'tmp_moving');
         mhd_write(movingImage,movingFname);
         CMD = sprintf('transformix -in %s.mhd ',movingFname);
+    elseif size(movingImage,2)==2 | size(movingImage,2)==3 %It's sparse points
+        movingFname=fullfile(outputDir,'tmp_moving.txt');
+        writePointsFile(movingFname,movingImage)
+        CMD = sprintf('transformix -def %s ',movingFname);
     else
-        CMD = 'transformix ';
+        error('Unknown format for movingImage')
     end
     CMD = sprintf('%s-out %s ',CMD,outputDir);
 
@@ -160,9 +203,30 @@ if nargin>1
         CMD=sprintf('%s-tp %s ',CMD,transParamsFname{end});
 
     elseif isstr(parameters)
+        if verbose
+            fprintf('Copying %s to %s\n',parameters,outputDir)
+        end
+        copyfile(parameters,outputDir) %We've already tested if the parameters file exists    
+        CMD=sprintf('%s-tp %s ',CMD,fullfile(outputDir,parameters));
 
-        copyfile(parameters,outputDir)        
-        CMD=sprintf('%s-tp %s ',CMD,[outputDir,filesep,parameters]);
+    elseif iscell(parameters)
+        %copy parameter files
+        copiedLocations = {}; %Keep track of the locations to which the files are stored
+        for ii=1:length(parameters)
+            if verbose
+                fprintf('Copying %s to %s\n',parameters{ii},outputDir)
+            end
+            copyfile(parameters{ii},outputDir)
+            [fPath,pName,pExtension] = fileparts(parameters{ii});
+            copiedLocations{ii} = fullfile(outputDir,[pName,pExtension]);
+        end
+        %Modify the parameter files so that they chain together correctly
+        for ii=1:length(parameters)-1
+            changeParameterInElastixFile(copiedLocations{ii},'InitialTransformParametersFileName',copiedLocations{ii+1},verbose)
+        end
+
+        %Add the first parameter file to the command string 
+        CMD=sprintf('%s -tp %s ',CMD,copiedLocations{1});
 
     else
         error('Parameters is of unknown type')
@@ -173,8 +237,6 @@ if nargin>1
     end
         
 end
-
-
 
 
 
@@ -193,12 +255,24 @@ if status %Things failed. Oh dear.
 
 else %Things worked! So let's return the transformed image to the user. 
     disp(result)
-    if ~isempty(movingImage)
-        d=dir([outputDir,filesep,'result.mhd']); 
+    if size(movingImage,2)>3 & ~isempty(movingImage)
+        d=dir(fullfile(outputDir,'result.mhd')); 
+    elseif size(movingImage,2)<=3 & ~isempty(movingImage)
+        d=dir(fullfile(outputDir,'outputpoints.txt')); 
     else
-        d=dir([outputDir,filesep,'deformationField.mhd']); 
+        d=dir(fullfile(outputDir,'deformationField.mhd')); 
     end
-    registered=mhd_read([outputDir,filesep,d.name]);
+
+    if isempty(d)
+        error('Failed to find transformed result. Retaining output directory for debugging purposes.')
+    end
+
+    if size(movingImage,2)>3 %It's an image
+        registered=mhd_read(fullfile(outputDir,d.name));
+    else %it's a points file
+        registered=readTransformedPointsFile(fullfile(outputDir,d.name));
+    end
+        
     transformixLog=readWholeTextFile([outputDir,filesep,'transformix.log']);
 end
 

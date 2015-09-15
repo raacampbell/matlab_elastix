@@ -49,7 +49,7 @@ function runExampleLena(lenaTrans,lena,p,ind)
 	tic
 	fprintf('\nStarting registration\n')
 	paramsReporter(p)
-	reg=elastix(lenaTrans,lena,[],'elastix_default.yml',p);
+	reg=elastix(lenaTrans,lena,[],'elastix_default.yml','paramstruct',p);
 
 	fprintf('Finished registration in %d seconds\n', round(toc))
 
