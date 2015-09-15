@@ -29,3 +29,8 @@ At the moment MelastiX does not provide tools to:
 
 ## What to do if the transform fails?
 If you get unexpected results, first check whether the transform parameter file was written properly. If you are providing an Elastix parameter file and not modifying it then you should be fine. However, if you use the .yml approach or modify a parameter file using a structure then it's possible you've found a bug in the writing of the paramater file. To diagnose this, look at the written parameter file by calling elastix.m with a user-defined output path (so the files produced are not deleted)  or use the verbose option in <a href="https://github.com/raacampbell13/matlab_elastix/blob/master/elastix_paramStruct2txt.m">elastix_paramStruct2txt</a>. If you're *still* getting unexpected results then probably you have an issue with Elastix itself: please go the Elastix website for documentation or ask on their forum. 
+
+
+## Related projects
+
+1. <a href="https://sourcesup.renater.fr/elxfrommatlab/">ElastixFromMatlab toolbox</a>
