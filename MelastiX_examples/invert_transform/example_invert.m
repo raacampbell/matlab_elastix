@@ -54,7 +54,7 @@ inverted = invertElastixTransform(fixed,params,reverseParam);
 
 fprintf('\nStep Four:\nUsing transformix to apply inverted transform to sparse points in moving space...\n')
 subplot(2,2,4)
-showImage(fixed,'Fixed image with transformed points')
+showImage(fixed,'Fixed image with inverse transformed points')
 drawnow
 
 REG=transformix(pointsInMovingSpace,inverted);

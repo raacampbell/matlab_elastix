@@ -8,14 +8,15 @@ MelastiX is a collection of wrappers for the open source image registration suit
 1. The user can feed in MATLAB matrices instead of image file names and get a MATLAB matrix back as a result.
 2. Parameters can be passed in as Elastix text files or as an MelastiX YAML file. The latter provides some error-checking options as the type and possible values of the parameters can be checked. 
 3. Parameter files can be modified by passing an optional structure as a command-line argument. This makes it easy to explore how changing parameters affects registration accuracy. 
-4. Handles both 2D and 3D data. Examples are only 2D, though.
+4. A function and example are provided to handle inverse transforms. 
+5. Transforms sparse points. 
+6. Handles both 2D and 3D data. Examples are only 2D, though.
 
 ## What does it not do?
 At the moment MelastiX does not provide tools to:
+1. Implement mask options, thread, and priority arguments for Elastix.
+2. Analyse transform parameters. 
 
-1. Transform sparse points with transformix
-2. Perform inverse transforms
-3. Analyse transform parameters. 
 
 ## Getting started
 Install [Elastix](http://elastix.isi.uu.nl/). Add MelastiX directory to your path. Run the examples. 

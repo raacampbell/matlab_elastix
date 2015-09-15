@@ -41,5 +41,5 @@ end
 
 %Force the transform chain to end here (in theory it would otherwise attempt to carry on
 %and undo the inverse transform)
-stats.TransformParameters{1}.InitialTransformParametersFileName='NoInitialTansform';
+stats.TransformParameters{1}.InitialTransformParametersFileName='NoInitialTransform';
 
