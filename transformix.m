@@ -184,7 +184,7 @@ if nargin>1
 
     if isstruct(parameters)
         %Generate an error if the image dimensions are different between the parameters and the supplied matrix
-        if parameters.TransformParameters{end}.FixedImageDimension ~= ndims(movingImage)
+        if size(movingImage,2)>3 & parameters.TransformParameters{end}.FixedImageDimension ~= ndims(movingImage)
             error('Transform Parameters are from an image with %d dimensions but movingImage has %d dimensions',...
                 parameters.TransformParameters{end}.FixedImageDimension, ndims(movingImage))
         end
