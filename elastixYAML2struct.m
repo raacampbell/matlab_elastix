@@ -25,12 +25,6 @@ function varargout=elastixYAML2struct(fname)
 %
 % Rob Campbell - Basel 2015
    
-
-if ~exist('ReadYaml','file')
-	fprintf('\n\n ***** \n\n')
-	error('Please install the YAML reader from https://github.com/raacampbell13/yamlmatlab')
-end
-
 if nargin==0 | isempty(fname)
 	fname='elastix_default.yml';
 	fprintf('Using the default YAML file: %s\n',fname)
@@ -45,7 +39,7 @@ end
 
 
 %Read the YAML file into a structure
-yml=ReadYaml(fname);
+yml=yaml.ReadYaml(fname);
 
 
 

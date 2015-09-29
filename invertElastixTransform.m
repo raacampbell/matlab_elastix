@@ -11,12 +11,13 @@ function stats=invertElastixTransform(fixedImage,params,reverseParam,outputDir)
 % 
 % Inputs
 % fixedImage - The fixed image associated with the transform parameters 
-% params - Absolute or relative paths to the elastix parameter files used to calculate the 
-%          the transform coefs (reverseParam). Supply from low order to high order:
+% params - Cell array of absolute or relative paths to the elastix parameter files 
+%          used to calculate the the transform coefs (reverseParam). Supply from 
+%          low order to high order:
 %          e.g. affine then bspline.
-% reverseParam - Absolute or relative paths to the transform parameters produced by 
-%                Elastix and associated with fixedImage. i.e. these are transform coefs.
-%                Supply in reverse order. e.g. bspline then affine.
+% reverseParam - Cell array of absolute or relative paths to the transform parameters 
+%                produced by Elastix and associated with fixedImage. i.e. these are 
+%                transform coefs. Supply in reverse order. e.g. bspline then affine.
 % outputDir  - Directory in which to conduct the registration. A temporary directory
 %              is created if none is defined here. 
 %
