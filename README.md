@@ -24,7 +24,7 @@ At the moment MelastiX does not provide tools to:
 
 1. Install [Elastix](http://elastix.isi.uu.nl/) in your system path. 
 2. Add MelastiX directory to your MATLAB path. 
-3. Add <a href="https://github.com/raacampbell13/yamlmatlab">yamlmatlab</a> to your MATLAB path. 
+3. Add <a href="https://github.com/ewiger/yamlmatlab">yamlmatlab</a> to your MATLAB path. 
 4. Run the examples in MelastiX_examples. 
 
 ## What to do if the transform fails?
