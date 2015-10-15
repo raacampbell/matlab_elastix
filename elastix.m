@@ -190,17 +190,19 @@ end
 if isstr(paramFile) & strfind(paramFile,'.yml') & ~isempty(paramstruct) %modify settings from YAML with paramstruct
     for ii=1:length(paramstruct)
         paramFname{ii}=sprintf('%s_parameters_%d.txt',dirName,ii);
-        elastix_parameter_write([outputDir,filesep,paramFname{ii}],paramFile,paramstruct(ii))
+        paramFname{ii}=fullfile(outputDir,paramFname{ii});
+        elastix_parameter_write(paramFname{ii},paramFile,paramstruct(ii))
     end
 
 elseif isstr(paramFile) & strfind(paramFile,'.yml') & isempty(paramstruct) %read YAML with no modifications
-    paramFname{1}=sprintf('%s_parameters_%d.txt',dirName,1);
-    elastix_parameter_write([outputDir,filesep,paramFname{1}],paramFile)
+    paramFname=sprintf('%s_parameters_%d.txt',dirName,1);
+    paramFname{1} = fullfile(outputDir,paramFname);
+    elastix_parameter_write(paramFname{1},paramFile)
 
 elseif (isstr(paramFile) & strfind(paramFile,'.txt')) %we have an elastix parameter file
-    paramFname{1} = paramFile;
     if ~strcmp(outputDir,'.')
-        copyfile(paramFname{1},outputDir)
+        copyfile(paramFname,outputDir)
+        paramFname{1} = fullfile(outputDir,paramFname);
     end
 
 elseif iscell(paramFile) %we have a cell array of elastix parameter files
@@ -208,6 +210,9 @@ elseif iscell(paramFile) %we have a cell array of elastix parameter files
      if ~strcmp(outputDir,'.') 
         for ii=1:length(paramFname)
             copyfile(paramFname{ii},outputDir)
+            %So paramFname is now:
+            [~,f,e] = fileparts(paramFname{ii});
+            paramFname{ii} = fullfile(outputDir,[f,e]);
         end
     end
 
@@ -241,11 +246,10 @@ else
 end
 
 
-
 %Build the the appropriate command
-CMD=sprintf('elastix -f %s%s%s.mhd -m %s%s%s.mhd -out %s ',...
-            outputDir,filesep,targetFname,...
-            outputDir,filesep,movingFname,...
+CMD=sprintf('elastix -f %s.mhd -m %s.mhd -out %s ',...
+            fullfile(outputDir,targetFname),...
+            fullfile(outputDir,movingFname),...
             outputDir);
 CMD = [CMD,initCMD];
 
@@ -258,11 +262,11 @@ end
     
 %Loop through, adding each parameter file in turn to the string
 for ii=1:length(paramFname) 
-    CMD=[CMD,sprintf('-p %s%s%s ', outputDir,filesep,paramFname{ii})];
+    CMD=[CMD,sprintf('-p %s ', paramFname{ii})];
 end
 
 %store a copy of the command to the directory
-cmdFid = fopen([outputDir,filesep,'CMD'],'w');
+cmdFid = fopen(fullfile(outputDir,'CMD'),'w');
 fprintf(cmdFid,'%s\n',CMD);
 fclose(cmdFid);
 

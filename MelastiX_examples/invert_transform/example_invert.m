@@ -50,7 +50,7 @@ drawnow
 
 fprintf('\nStep Three:\nInverting the transform...\n')
 reverseParam = {fullfile(tmpDir,'TransformParameters.1.txt'),fullfile(tmpDir,'TransformParameters.0.txt')};
-inverted = invertElastixTransform(fixed,params,reverseParam);
+inverted = invertElastixTransform(tmpDir);
 
 fprintf('\nStep Four:\nUsing transformix to apply inverted transform to sparse points in moving space...\n')
 subplot(2,2,4)
