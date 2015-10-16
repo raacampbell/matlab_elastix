@@ -18,7 +18,8 @@ MelastiX is a collection of wrappers for the open source image registration suit
 At the moment MelastiX does not provide tools to:
 
 1. Handle the mask option, thread option, and priority arguments for the elastix binary.
-2. Analyse transform parameters. 
+2. Handle multiple fixed and moving image in one elastix call.
+3. Analyse transform parameters. 
 
 
 ## Getting started
