@@ -6,7 +6,11 @@ function stats=invertElastixTransform(transformDir,outputDir)
 %
 % 
 % Purpose
-% Uses elastix to invert an already-calculated transform 
+% Uses elastix to invert an already-calculated transform. You will need a directory
+% containing the transform log file, the calculated coefficients, and also the 
+% parameter files (settings file) with which Elastix was run. The log file lists 
+% the locations of all of these things. If you used elastix.m to conduct the registration
+% then copies of the parameter files will be in the same directory as the log file. 
 %
 % 
 % Inputs
@@ -16,11 +20,14 @@ function stats=invertElastixTransform(transformDir,outputDir)
 %
 %
 % Outputs
-% Returns a structure containing the inverted transform
+% Returns a structure containing the inverted transform. You can save this 
+% to disk and apply it to other data with transformix.m
 %
 % 
 % Example: 
-% see example_invert.m in the examples directory
+% see example_invert.m in the examples directory, for a case where inverted
+% transform is calculated and then used to transform sparse points. 
+%
 %
 % Rob Campbell - Basel 2015
 
