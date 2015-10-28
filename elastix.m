@@ -297,22 +297,23 @@ else %Things worked! So let's return stuff to the user
 
     if nargout>1
         %Return the transform parameters
-        d=dir([outputDir,filesep,'TransformParameters.*.txt']);
+        d=dir(fullfile(outputDir,'TransformParameters.*.txt'));
         for ii=1:length(d)
             out.TransformParameters{ii}=elastix_parameter_read([outputDir,filesep,d(ii).name]);
             out.TransformParametersFname{ii}=[outputDir,filesep,d(ii).name];
         end
 
         %return the transformed images
-        d=dir([outputDir,filesep,'result*.mhd']);
+        d=dir(fullfile(outputDir,'result*.mhd'));
         if isempty(d)
-            fprintf('WARNING: could find no transformed result images\n');
+            fprintf('WARNING: could find no transformed result images in %s\n',outputDir);
+            registered=[];
         else
             for ii=1:length(d)
                 out.transformedImages{ii}=mhd_read([outputDir,filesep,d(ii).name]);
             end
+            registered=out.transformedImages{end};
         end
-        registered=out.transformedImages{end};
 
         out.log=readWholeTextFile([outputDir,filesep,'elastix.log']);
         out.outputDir=outputDir; %may be a relative path
@@ -323,9 +324,10 @@ else %Things worked! So let's return stuff to the user
     elseif nargout==1      
 
         %return the final transformed image
-        d=dir([outputDir,filesep,'result*.mhd']);
+        d=dir(fullfile(outputDir,'result*.mhd'));
         if isempty(d)
-            fprintf('WARNING: could find no transformed result images\n');
+            fprintf('WARNING: could find no transformed result images in %s\n',outputDir);
+            registered=[];
         else
             registered=mhd_read([outputDir,filesep,d(end).name]);
         end
