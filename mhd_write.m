@@ -65,7 +65,8 @@ switch class(im)
 	case 'uint8',  dtype='uchar';
 	case 'int16', dtype='short';
 	case 'uint16', dtype='ushort';
-	case 'uint32', dtype='int';		
+	case 'uint32', dtype='int';
+    case 'int32', dtype='int';
 	case 'single', dtype='float';
 	case 'double', dtype='double';
 	otherwise
@@ -85,5 +86,6 @@ fprintf(fid,'ElementSize = %s\n', elementSpacing); %Make the voxels fill the spa
 fprintf(fid,'ElementSpacing =  %s\n', elementSpacing);
 fprintf(fid,'ElementType = MET_%s\n',upper(dtype));
 fprintf(fid,'ElementByteOrderMSB = False\n');
-fprintf(fid,'ElementDataFile = %s.raw\n',fname);
+[~,nm]=fileparts(fname);
+fprintf(fid,'ElementDataFile = %s.raw\n',nm);
 fclose(fid);
