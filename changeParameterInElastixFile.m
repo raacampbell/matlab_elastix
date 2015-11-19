@@ -1,6 +1,6 @@
 function varargout = changeParameterInElastixFile(fname,param,value,verbose)
 % change or add a paramater in an elastix parameter or transform file 
-
+%
 % function fileContents = changeParameterInElastixFile(fname,param,value)	
 %
 % Purpose
