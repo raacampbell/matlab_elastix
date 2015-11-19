@@ -154,6 +154,9 @@ if nargin>1
     %error check: confirm parameter files exist
     if isstr(parameters)
         if isdir(parameters)
+            if verbose
+                fprintf('%s using parameters in directory %s\n',mfilename,parameters)
+            end
             paramDir = parameters;
             clear parameters
             parameterFiles = dir(fullfile(paramDir,'TransformParameters*.txt'));
@@ -166,6 +169,13 @@ if nargin>1
             for ii=1:length(parameterFiles)
                 parameters{ii} = fullfile(paramDir,parameterFiles(ii).name);
             end
+
+            if verbose
+                fprintf('Found parameter files:\n')
+                cellfun(@(x) fprintf('%s\n',x), parameters)
+                fprintf('\n')
+            end
+
 
         elseif ~exist(parameters,'file')
             print('Can not find parameter file %s\n', parameters)
@@ -247,7 +257,11 @@ if nargin>1
             [fPath,pName,pExtension] = fileparts(parameters{ii});
             copiedLocations{ii} = fullfile(outputDir,[pName,pExtension]);
         end
-        %Modify the parameter files so that they chain together correctly
+        if verbose
+            fprintf('\n')
+        end
+
+        %Modify the parameter files so that they chain together correctly: the files should point to the new copied locations. 
         for ii=1:length(parameters)-1
             changeParameterInElastixFile(copiedLocations{ii},'InitialTransformParametersFileName',copiedLocations{ii+1},verbose)
         end
