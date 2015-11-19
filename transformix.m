@@ -22,7 +22,7 @@ function varargout=transformix(movingImage,parameters,verbose)
 %                    parameter text file produced by elastix. Will work only if a single 
 %                    parameter file is all that is needed. In cases where you want to 
 %                    chain transforms, supply a cell array of relative paths ordered 
-%                    from the last transform on the list to the first (see below).
+%                    from the last transform on the list to the first (see examples, below).
 %   verbose - [optional, 0 by default] if 1, some debugging information is printed.
 %
 % * When called with ONE input argument
@@ -172,10 +172,11 @@ if nargin>1
             return
         end
     end
+
     if iscell(parameters)
         for ii = 1:length(parameters)
             if ~exist(parameters{ii},'file')
-                print('Can not find %s\n', parameters{ii})
+                fprintf('Can not find %s\n', parameters{ii})
                 return  
             end
         end
