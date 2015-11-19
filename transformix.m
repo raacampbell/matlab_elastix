@@ -1,7 +1,7 @@
 function varargout=transformix(movingImage,parameters,verbose)
 % transformix image registration and warping wrapper
 %
-% function varargout=transformix(movingImage,parameters) 
+% function [registeredImage,log] = transformix(movingImage,parameters) 
 %
 % Purpose
 % Wrapper for transformix. Applies a transform calculated by elastix to 
@@ -40,6 +40,12 @@ function varargout=transformix(movingImage,parameters,verbose)
 %
 % * Transforming points
 %  To transform sparse points, movingImage should be an n-by-2 or n-by-3 array
+%
+%
+% Outputs
+% registeredImage - the registred image or image volume
+% log - the transformix log text.
+%
 %
 %
 % Implementation details
@@ -146,9 +152,25 @@ end
 if nargin>1
 
     %error check: confirm parameter files exist
-    if isstr(parameters) & ~exist(parameters,'file')
-        print('Can not find %s\n', parameters)
-        return
+    if isstr(parameters)
+        if isdir(parameters)
+            paramDir = parameters;
+            clear parameters
+            parameterFiles = dir(fullfile(paramDir,'TransformParameters*.txt'));
+            if isempty(parameterFiles)
+                print('Can not find parameter any files in %s\n', parameters)
+                return
+            end
+            parameterFiles = fliplr(parameterFiles); %must go from first to last
+            %create full paths
+            for ii=1:length(parameterFiles)
+                parameters{ii} = fullfile(paramDir,parameterFiles(ii).name);
+            end
+
+        elseif ~exist(parameters,'file')
+            print('Can not find parameter file %s\n', parameters)
+            return
+        end
     end
     if iscell(parameters)
         for ii = 1:length(parameters)
