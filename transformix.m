@@ -109,7 +109,7 @@ if nargin==1
 
         %Find moving images
         outputDir = movingImage;
-        movingFname = dir([outputDir,filesep,'*_moving.mhd']);
+        movingFname = dir(fullfile(outputDir,'*_moving.mhd'));
         if isempty(movingImage)
             error('No moving images exist in directory %s',outputDir)
         end
@@ -120,7 +120,7 @@ if nargin==1
         movingFname=movingFname(1).name;
 
         %Find transform parameters
-        params = dir([outputDir,filesep,'TransformParameters*.txt']);
+        params = dir(fullfile(outputDir,'TransformParameters*.txt'));
         if isempty(params)
             error('No transform parameters found in directory %s',outputDir)
         end
