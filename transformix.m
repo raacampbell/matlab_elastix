@@ -15,12 +15,14 @@ function varargout=transformix(movingImage,parameters,verbose)
 %    movingImage - a) A 2D or 3D matrix corresponding to a 2D image or a 3D volume.  
 %                     This is the image that you want to align.
 %                  b) If empty, transformix returns all the warped control points. 
-%    parameters - a) output structure from elastix.m
-%                 b) absolute or relative path to a transform parameter text file 
-%                    produced by elastix. Will work only if a single parameter file 
-%                    is all that is needed. In cases where you want to chain transforms,
-%                    supply a cell array of relative paths ordered from the last 
-%                    transform on the list to the first (see below)
+%    parameters - a) [struct] output structure from elastix.m
+%                 b) [string] absolute or relative paths to an elastix output directory
+%                    containing the transform parameter (coefs) files produced by elastix.
+%                 c) [string or cell array] absolute or relative path to a transform 
+%                    parameter text file produced by elastix. Will work only if a single 
+%                    parameter file is all that is needed. In cases where you want to 
+%                    chain transforms, supply a cell array of relative paths ordered 
+%                    from the last transform on the list to the first (see below).
 %   verbose - [optional, 0 by default] if 1, some debugging information is printed.
 %
 % * When called with ONE input argument
@@ -54,6 +56,8 @@ function varargout=transformix(movingImage,parameters,verbose)
 %
 % Examples
 % reg=transformix(imageToTransform,paramStructure);
+%
+% reg=transformix(imageToTransform,'/path/to/elastixDir');
 %
 % reg=transformix(imageToTransform,'/path/to/TransformParameters.0.txt');
 %
