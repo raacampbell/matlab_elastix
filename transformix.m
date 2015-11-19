@@ -164,7 +164,9 @@ if nargin>1
                 print('Can not find parameter any files in %s\n', parameters)
                 return
             end
-            parameterFiles = fliplr(parameterFiles); %must go from first to last
+
+            parameterFiles = flipud(parameterFiles); %must go from first to last
+
             %create full paths
             for ii=1:length(parameterFiles)
                 parameters{ii} = fullfile(paramDir,parameterFiles(ii).name);
