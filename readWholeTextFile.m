@@ -3,7 +3,24 @@ function txt=readWholeTextFile(fname)
 % 
 % function txt=readWholeTextFile(fname)
 %
-% Rob Campbell - August 20120
+% Purpose
+% Read text file defined by relative or absolute path 'fname' into 
+% a string. Return the string to the workspace.
+%
+% Inputs
+% fname - string defining the relative or absolute path to a text file
+%
+% Outputs
+% txt - string containing the contents of file fname.
+%
+%
+% Rob Campbell - August 2012
+
+
+
+if ~exist(fname,'file')
+	error('Can not find file %s\n',fname)
+end
 
 
 % preassign s to some large cell array
