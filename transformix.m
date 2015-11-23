@@ -311,7 +311,7 @@ else %Things worked! So let's return the transformed image to the user.
         registered=readTransformedPointsFile(fullfile(outputDir,d.name));
     end
         
-    transformixLog=readWholeTextFile([outputDir,filesep,'transformix.log']);
+    transformixLog=readWholeTextFile(fullfile(outputDir,'transformix.log'));
 end
 
 
