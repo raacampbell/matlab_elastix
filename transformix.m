@@ -246,7 +246,7 @@ if nargin>1
             fprintf('Copying %s to %s\n',parameters,outputDir)
         end
         copyfile(parameters,outputDir) %We've already tested if the parameters file exists   
-        [fPath,pName,pExtension] = fileparts(parameters{ii});
+        [fPath,pName,pExtension] = fileparts(parameters);
         CMD=sprintf('%s-tp %s ',CMD,fullfile(outputDir,[pName,pExtension]));
 
     elseif iscell(parameters)
