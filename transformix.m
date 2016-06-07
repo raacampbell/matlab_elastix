@@ -245,8 +245,9 @@ if nargin>1
         if verbose
             fprintf('Copying %s to %s\n',parameters,outputDir)
         end
-        copyfile(parameters,outputDir) %We've already tested if the parameters file exists    
-        CMD=sprintf('%s-tp %s ',CMD,fullfile(outputDir,parameters));
+        copyfile(parameters,outputDir) %We've already tested if the parameters file exists   
+        [fPath,pName,pExtension] = fileparts(parameters{ii});
+        CMD=sprintf('%s-tp %s ',CMD,fullfile(outputDir,[pName,pExtension]));
 
     elseif iscell(parameters)
         %copy parameter files
