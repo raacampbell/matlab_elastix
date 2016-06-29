@@ -37,6 +37,11 @@ if ~exist(fname,'file')
 end
 
 
+% Instruct user to download YAML tools if they are missing. 
+% Function will go on to crash on the next line if the tools are missing
+if isempty(which('yaml.ReadYaml'))
+	fprintf('\n\n ** Unable to find yaml tools. Please download from https://github.com/raacampbell/yamlmatlab and add to path ** \n\n')
+end
 
 %Read the YAML file into a structure
 yml=yaml.ReadYaml(fname);
