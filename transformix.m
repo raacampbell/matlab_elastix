@@ -195,7 +195,8 @@ if nargin>1
     end
 
     %MATLAB should figure out the correct temporary directory on Windows
-    outputDir=sprintf('/tmp/transformix_%s_%d', datestr(now,'yymmddHHMMSS'), round(rand*1E8)); 
+    outputDir=fullfile(tempdir,sprintf('transformix_%s_%d', datestr(now,'yymmddHHMMSS'), round(rand*1E8))); 
+
     if ~exist(outputDir)
         if ~mkdir(outputDir)
             error('Can''t make data directory %s',outputDir)

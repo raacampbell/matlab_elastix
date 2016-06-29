@@ -105,7 +105,7 @@ end
 
 % Make directory into which we will write the image files and associated registration files
 if nargin<3 | isempty(outputDir) 
-    outputDir=sprintf('/tmp/elastixTMP_%s_%d', datestr(now,'yymmddHHMMSS'), round(rand*1E8));
+    outputDir=fullfile(tempdir,sprintf('elastixTMP_%s_%d', datestr(now,'yymmddHHMMSS'), round(rand*1E8)));
     deleteDirOnCompletion=1;
 else
     deleteDirOnCompletion=0;

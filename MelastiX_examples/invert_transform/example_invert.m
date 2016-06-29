@@ -18,7 +18,7 @@ help(mfilename)
 fprintf('\nStep One:\nLoad images and points.\n')
 
 
-tmpDir = '/tmp/dog_registration';
+tmpDir = fullfile(tempdir,'dog_registration');
 params = {'params_0.txt','params_1.txt'};
 fixed = imread('../transformix/uma.tiff');
 moving = imread('../transformix/uma_distorted.tiff');
