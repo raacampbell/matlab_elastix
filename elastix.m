@@ -90,7 +90,7 @@ end
 
 %If the user supplies one input argument only and this is is a string then
 %we assume it's a request for the help or version so we run it 
-if nargin==1 & isstr(movingImage)
+if nargin==1 & ischar(movingImage)
     if regexp(movingImage,'^\w')
         [s,msg]=system(['elastix --',movingImage]);
     end
@@ -104,7 +104,7 @@ if ndims(movingImage) ~= ndims(fixedImage)
 end
 
 % Make directory into which we will write the image files and associated registration files
-if nargin<3 | isempty(outputDir) 
+if nargin<3 || isempty(outputDir) 
     outputDir=fullfile(tempdir,sprintf('elastixTMP_%s_%d', datestr(now,'yymmddHHMMSS'), round(rand*1E8)));
     deleteDirOnCompletion=1;
 else
@@ -115,7 +115,7 @@ if strcmp(outputDir(end),filesep) %Chop off any trailing fileseps
     outputDir(end)=[];
 end
 
-if ~exist(outputDir) | isempty(outputDir)
+if ~exist(outputDir,'dir') || isempty(outputDir)
     if ~mkdir(outputDir)
         error('Can''t make data directory %s',outputDir)
     end
@@ -124,9 +124,10 @@ end
 if nargin<4
     paramFile=[];
 end
-
-if nargin<5
-    paramstruct=[];
+if isempty(paramFile)
+    defaultParam = 'elastix_default.yml';
+    fprintf('Using default parameter file %s\n',defaultParam)
+    paramFile = defaultParam;
 end
 
 
@@ -144,7 +145,7 @@ verbose = p.Results.verbose;
 
 %error check: confirm initial parameter files exist
 if ~isempty(t0)
-    if isstr(t0) 
+    if ischar(t0) 
        t0 = {t0}; %just to make later code neater
     end
 
@@ -187,19 +188,18 @@ end
 
 
 %Build the parameter file(s)
-if isstr(paramFile) & strfind(paramFile,'.yml') & ~isempty(paramstruct) %modify settings from YAML with paramstruct
+if ischar(paramFile) & strfind(paramFile,'.yml') & ~isempty(paramstruct) %modify settings from YAML with paramstruct
     for ii=1:length(paramstruct)
-        paramFname{ii}=sprintf('%s_parameters_%d.txt',dirName,ii);
+        paramFname{ii}=sprintf('%s_parameters_%d.txt',dirName,ii)
         paramFname{ii}=fullfile(outputDir,paramFname{ii});
         elastix_parameter_write(paramFname{ii},paramFile,paramstruct(ii))
     end
 
-elseif isstr(paramFile) & strfind(paramFile,'.yml') & isempty(paramstruct) %read YAML with no modifications
-    paramFname=sprintf('%s_parameters_%d.txt',dirName,1);
-    paramFname{1} = fullfile(outputDir,paramFname);
+elseif ischar(paramFile) & strfind(paramFile,'.yml') & isempty(paramstruct) %read YAML with no modifications
+    paramFname{1} = fullfile(outputDir,sprintf('%s_parameters_%d.txt',dirName,1));
     elastix_parameter_write(paramFname{1},paramFile)
 
-elseif (isstr(paramFile) & strfind(paramFile,'.txt')) %we have an elastix parameter file
+elseif (ischar(paramFile) & strfind(paramFile,'.txt')) %we have an elastix parameter file
     if ~strcmp(outputDir,'.')
         copyfile(paramFname,outputDir)
         paramFname{1} = fullfile(outputDir,paramFname);
@@ -217,7 +217,7 @@ elseif iscell(paramFile) %we have a cell array of elastix parameter files
     end
 
 else
-    error('paramFile format not understood')    
+    error('paramFile format in file not understood')    
 end
 
 

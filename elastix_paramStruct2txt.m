@@ -37,7 +37,7 @@ for ii=1:length(R)
         continue
     end
 
-    if isstr(value)
+    if ischar(value)
         str = sprintf('(%s "%s")\n',param,value);
         fprintf(fid,str);
         if verbose
