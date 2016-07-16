@@ -190,7 +190,7 @@ end
 %Build the parameter file(s)
 if ischar(paramFile) & strfind(paramFile,'.yml') & ~isempty(paramstruct) %modify settings from YAML with paramstruct
     for ii=1:length(paramstruct)
-        paramFname{ii}=sprintf('%s_parameters_%d.txt',dirName,ii)
+        paramFname{ii}=sprintf('%s_parameters_%d.txt',dirName,ii);
         paramFname{ii}=fullfile(outputDir,paramFname{ii});
         elastix_parameter_write(paramFname{ii},paramFile,paramstruct(ii))
     end
