@@ -152,7 +152,7 @@ end
 if nargin>1
 
     %error check: confirm parameter files exist
-    if isstr(parameters)
+    if ischar(parameters)
         if isdir(parameters)
             if verbose
                 fprintf('%s using parameters in directory %s\n',mfilename,parameters)
@@ -197,7 +197,7 @@ if nargin>1
     %MATLAB should figure out the correct temporary directory on Windows
     outputDir=fullfile(tempdir,sprintf('transformix_%s_%d', datestr(now,'yymmddHHMMSS'), round(rand*1E8))); 
 
-    if ~exist(outputDir)
+    if ~exist(outputDir,'dir')
         if ~mkdir(outputDir)
             error('Can''t make data directory %s',outputDir)
         end
@@ -242,7 +242,7 @@ if nargin>1
         %Build command
         CMD=[CMD, '-tp ', transParamsFname{end} ,' '];
 
-    elseif isstr(parameters)
+    elseif ischar(parameters)
         if verbose
             fprintf('Copying %s to %s\n',parameters,outputDir)
         end
