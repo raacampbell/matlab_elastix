@@ -38,6 +38,7 @@ for ii=1:length(R)
     end
 
     if ischar(value)
+        value = strrep(value,'\','\\');
         str = sprintf('(%s "%s")\n',param,value);
         fprintf(fid,str);
         if verbose

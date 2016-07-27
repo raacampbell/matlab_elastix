@@ -232,7 +232,7 @@ if nargin>1
         %Write all the tranform parameters (transformix is fed only the final one but this calls the previous one, and so on)
         for ii=1:length(parameters.TransformParameters)        
             transParam=parameters.TransformParameters{ii};
-            transParamsFname{ii} = sprintf('%s%stmp_params_%d.txt',outputDir,filesep,ii);
+            transParamsFname{ii} = fullfile(outputDir,sprintf('tmp_params_%d.txt',ii));
             if ii>1
                 transParam.InitialTransformParametersFileName=transParamsFname{ii-1};
             end
@@ -240,15 +240,15 @@ if nargin>1
         end
 
         %Build command
-        CMD=sprintf('%s-tp %s ',CMD,transParamsFname{end});
+        CMD=[CMD, '-tp ', transParamsFname{end} ,' '];
 
     elseif isstr(parameters)
         if verbose
             fprintf('Copying %s to %s\n',parameters,outputDir)
         end
         copyfile(parameters,outputDir) %We've already tested if the parameters file exists   
-        [fPath,pName,pExtension] = fileparts(parameters);
-        CMD=sprintf('%s-tp %s ',CMD,fullfile(outputDir,[pName,pExtension]));
+        [~,pName,pExtension] = fileparts(parameters);
+        CMD=[CMD, '-tp ', fullfile(outputDir,[pName,pExtension]) ,' '];
 
     elseif iscell(parameters)
         %copy parameter files
