@@ -293,6 +293,8 @@ fprintf('Running: %s\n',CMD)
 
 if status %Things failed. Oh dear. 
     fprintf('\n\t*** Transform Failed! ***\n%s\n',result)
+    registered=[];
+    transformixLog=[];
 else %Things worked! So let's return the transformed image to the user. 
     disp(result)
     if size(movingImage,2)>3 & ~isempty(movingImage)
