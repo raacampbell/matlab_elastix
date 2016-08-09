@@ -69,7 +69,7 @@ for ii=1:length(R)
         if value
             str = sprintf('(%s "true")\n',param);
         else
-            str = sprintf('(%s "true")\n',param);
+            str = sprintf('(%s "false")\n',param);
         end
         fprintf(fid,str);
         if verbose
