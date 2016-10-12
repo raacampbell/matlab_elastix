@@ -79,6 +79,7 @@ elementSpacing = regexprep(elementSpacing,' +',' ');
 
 
 fid=fopen([fname,'.mhd'],'w+');
+fprintf(fid,'ObjectType = Image\nCompressedData = False\nBinaryData = True\n');
 fprintf(fid,'NDims = %d\n', ndims(im));
 fprintf(fid,'DataType = %s\n',dtype);
 fprintf(fid,['DimSize = ',repmat('%d ',1, length(size(im))), '\n'], size(im));
