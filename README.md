@@ -3,7 +3,7 @@
 ![Transformix Results](https://raw.githubusercontent.com/raacampbell13/matlab_elastix/master/MelastiX_examples/transformix/dog_warp_results.png "Transformix Results")
 
 ## What is it?
-MelastiX is a collection of wrappers for the open source image registration suite [Elastix](http://elastix.isi.uu.nl/). Elastix is cross-platform and is normally called from the system command-line (no GUI). MelastiX allows the elastix and transformix commands to be called from within MATLAB as though they are native MATLAB commands. 
+MelastiX is a collection of MATLAB wrappers for the open source image registration suite [Elastix](http://elastix.isi.uu.nl/). Elastix is cross-platform and is normally called from the system command-line (no GUI). MelastiX allows the elastix and transformix binaries to be called from within MATLAB as though they are native MATLAB commands.
 
 ## What does it do?
 1. The user can feed in MATLAB matrices instead of image file names and get a MATLAB matrix back as a result.
@@ -24,8 +24,8 @@ At the moment MelastiX does not provide tools to:
 
 ## Getting started
 
-1. Install [Elastix](http://elastix.isi.uu.nl/) in your system path. 
-2. Add MelastiX directory to your MATLAB path. 
+1. Place the [Elastix](http://elastix.isi.uu.nl/) binaries in your *system* path. If you don't know how to do that, there's information here for [Windows](http://www.howtogeek.com/118594/how-to-edit-your-system-path-for-easy-command-line-access/) and [Linux](http://unix.stackexchange.com/questions/26047/how-to-correctly-add-a-path-to-path). 
+2. Add the MelastiX *code* directory to your MATLAB path. 
 3. Add <a href="https://github.com/ewiger/yamlmatlab">yamlmatlab</a> to your MATLAB path. 
 4. Run the examples in MelastiX_examples. 
 
