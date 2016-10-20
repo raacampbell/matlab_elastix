@@ -35,9 +35,9 @@ end
 % Open file
 switch(headerInfo.ByteOrder(1))
     case ('true')
-        fid=fopen(headerInfo.Filename','rb','ieee-be');
+        fid=fopen(headerInfo.Filename,'rb','ieee-be');
     otherwise
-        fid=fopen(headerInfo.Filename','rb','ieee-le');
+        fid=fopen(headerInfo.Filename,'rb','ieee-le');
 end
 
 switch(lower(headerInfo.DataFile))
