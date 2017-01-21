@@ -90,7 +90,7 @@ end
 
 %If the user supplies one input argument only and this is is a string then
 %we assume it's a request for the help or version so we run it 
-if nargin==1 & isstr(movingImage)
+if nargin==1 & ischar(movingImage)
     if regexp(movingImage,'^\w')
         [s,msg]=system(['elastix --',movingImage]);
     end
@@ -104,8 +104,8 @@ if ndims(movingImage) ~= ndims(fixedImage)
 end
 
 % Make directory into which we will write the image files and associated registration files
-if nargin<3 | isempty(outputDir) 
-    outputDir=sprintf('/tmp/elastixTMP_%s_%d', datestr(now,'yymmddHHMMSS'), round(rand*1E8));
+if nargin<3 || isempty(outputDir) 
+    outputDir=fullfile(tempdir,sprintf('elastixTMP_%s_%d', datestr(now,'yymmddHHMMSS'), round(rand*1E8)));
     deleteDirOnCompletion=1;
 else
     deleteDirOnCompletion=0;
@@ -115,7 +115,7 @@ if strcmp(outputDir(end),filesep) %Chop off any trailing fileseps
     outputDir(end)=[];
 end
 
-if ~exist(outputDir) | isempty(outputDir)
+if ~exist(outputDir,'dir') || isempty(outputDir)
     if ~mkdir(outputDir)
         error('Can''t make data directory %s',outputDir)
     end
@@ -124,9 +124,10 @@ end
 if nargin<4
     paramFile=[];
 end
-
-if nargin<5
-    paramstruct=[];
+if isempty(paramFile)
+    defaultParam = 'elastix_default.yml';
+    fprintf('Using default parameter file %s\n',defaultParam)
+    paramFile = defaultParam;
 end
 
 
@@ -144,7 +145,7 @@ verbose = p.Results.verbose;
 
 %error check: confirm initial parameter files exist
 if ~isempty(t0)
-    if isstr(t0) 
+    if ischar(t0) 
        t0 = {t0}; %just to make later code neater
     end
 
@@ -187,20 +188,21 @@ end
 
 
 %Build the parameter file(s)
-if isstr(paramFile) & strfind(paramFile,'.yml') & ~isempty(paramstruct) %modify settings from YAML with paramstruct
+if ischar(paramFile) & strfind(paramFile,'.yml') & ~isempty(paramstruct) %modify settings from YAML with paramstruct
     for ii=1:length(paramstruct)
         paramFname{ii}=sprintf('%s_parameters_%d.txt',dirName,ii);
-        elastix_parameter_write([outputDir,filesep,paramFname{ii}],paramFile,paramstruct(ii))
+        paramFname{ii}=fullfile(outputDir,paramFname{ii});
+        elastix_parameter_write(paramFname{ii},paramFile,paramstruct(ii))
     end
 
-elseif isstr(paramFile) & strfind(paramFile,'.yml') & isempty(paramstruct) %read YAML with no modifications
-    paramFname{1}=sprintf('%s_parameters_%d.txt',dirName,1);
-    elastix_parameter_write([outputDir,filesep,paramFname{1}],paramFile)
+elseif ischar(paramFile) & strfind(paramFile,'.yml') & isempty(paramstruct) %read YAML with no modifications
+    paramFname{1} = fullfile(outputDir,sprintf('%s_parameters_%d.txt',dirName,1));
+    elastix_parameter_write(paramFname{1},paramFile)
 
-elseif (isstr(paramFile) & strfind(paramFile,'.txt')) %we have an elastix parameter file
-    paramFname{1} = paramFile;
+elseif (ischar(paramFile) & strfind(paramFile,'.txt')) %we have an elastix parameter file
     if ~strcmp(outputDir,'.')
-        copyfile(paramFname{1},outputDir)
+        copyfile(paramFname,outputDir)
+        paramFname{1} = fullfile(outputDir,paramFname);
     end
 
 elseif iscell(paramFile) %we have a cell array of elastix parameter files
@@ -208,11 +210,14 @@ elseif iscell(paramFile) %we have a cell array of elastix parameter files
      if ~strcmp(outputDir,'.') 
         for ii=1:length(paramFname)
             copyfile(paramFname{ii},outputDir)
+            %So paramFname is now:
+            [~,f,e] = fileparts(paramFname{ii});
+            paramFname{ii} = fullfile(outputDir,[f,e]);
         end
     end
 
 else
-    error('paramFile format not understood')    
+    error('paramFile format in file not understood')    
 end
 
 
@@ -241,11 +246,10 @@ else
 end
 
 
-
 %Build the the appropriate command
-CMD=sprintf('elastix -f %s%s%s.mhd -m %s%s%s.mhd -out %s ',...
-            outputDir,filesep,targetFname,...
-            outputDir,filesep,movingFname,...
+CMD=sprintf('elastix -f %s.mhd -m %s.mhd -out %s ',...
+            fullfile(outputDir,targetFname),...
+            fullfile(outputDir,movingFname),...
             outputDir);
 CMD = [CMD,initCMD];
 
@@ -258,11 +262,11 @@ end
     
 %Loop through, adding each parameter file in turn to the string
 for ii=1:length(paramFname) 
-    CMD=[CMD,sprintf('-p %s%s%s ', outputDir,filesep,paramFname{ii})];
+    CMD=[CMD,sprintf('-p %s ', paramFname{ii})];
 end
 
 %store a copy of the command to the directory
-cmdFid = fopen([outputDir,filesep,'CMD'],'w');
+cmdFid = fopen(fullfile(outputDir,'CMD'),'w');
 fprintf(cmdFid,'%s\n',CMD);
 fclose(cmdFid);
 
@@ -293,22 +297,23 @@ else %Things worked! So let's return stuff to the user
 
     if nargout>1
         %Return the transform parameters
-        d=dir([outputDir,filesep,'TransformParameters.*.txt']);
+        d=dir(fullfile(outputDir,'TransformParameters.*.txt'));
         for ii=1:length(d)
             out.TransformParameters{ii}=elastix_parameter_read([outputDir,filesep,d(ii).name]);
             out.TransformParametersFname{ii}=[outputDir,filesep,d(ii).name];
         end
 
         %return the transformed images
-        d=dir([outputDir,filesep,'result*.mhd']);
+        d=dir(fullfile(outputDir,'result*.mhd'));
         if isempty(d)
-            fprintf('WARNING: could find no transformed result images\n');
+            fprintf('WARNING: could find no transformed result images in %s\n',outputDir);
+            registered=[];
         else
             for ii=1:length(d)
                 out.transformedImages{ii}=mhd_read([outputDir,filesep,d(ii).name]);
             end
+            registered=out.transformedImages{end};
         end
-        registered=out.transformedImages{end};
 
         out.log=readWholeTextFile([outputDir,filesep,'elastix.log']);
         out.outputDir=outputDir; %may be a relative path
@@ -319,9 +324,10 @@ else %Things worked! So let's return stuff to the user
     elseif nargout==1      
 
         %return the final transformed image
-        d=dir([outputDir,filesep,'result*.mhd']);
+        d=dir(fullfile(outputDir,'result*.mhd'));
         if isempty(d)
-            fprintf('WARNING: could find no transformed result images\n');
+            fprintf('WARNING: could find no transformed result images in %s\n',outputDir);
+            registered=[];
         else
             registered=mhd_read([outputDir,filesep,d(end).name]);
         end

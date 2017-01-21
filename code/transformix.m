@@ -1,7 +1,7 @@
 function varargout=transformix(movingImage,parameters,verbose)
 % transformix image registration and warping wrapper
 %
-% function varargout=transformix(movingImage,parameters) 
+% function [registeredImage,log] = transformix(movingImage,parameters) 
 %
 % Purpose
 % Wrapper for transformix. Applies a transform calculated by elastix to 
@@ -15,12 +15,14 @@ function varargout=transformix(movingImage,parameters,verbose)
 %    movingImage - a) A 2D or 3D matrix corresponding to a 2D image or a 3D volume.  
 %                     This is the image that you want to align.
 %                  b) If empty, transformix returns all the warped control points. 
-%    parameters - a) output structure from elastix.m
-%                 b) absolute or relative path to a transform parameter text file 
-%                    produced by elastix. Will work only if a single parameter file 
-%                    is all that is needed. In cases where you want to chain transforms,
-%                    supply a cell array of relative paths ordered from the last 
-%                    transform on the list to the first (see below)
+%    parameters - a) [struct] output structure from elastix.m
+%                 b) [string] absolute or relative paths to an elastix output directory
+%                    containing the transform parameter (coefs) files produced by elastix.
+%                 c) [string or cell array] absolute or relative path to a transform 
+%                    parameter text file produced by elastix. Will work only if a single 
+%                    parameter file is all that is needed. In cases where you want to 
+%                    chain transforms, supply a cell array of relative paths ordered 
+%                    from the last transform on the list to the first (see examples, below).
 %   verbose - [optional, 0 by default] if 1, some debugging information is printed.
 %
 % * When called with ONE input argument
@@ -40,6 +42,12 @@ function varargout=transformix(movingImage,parameters,verbose)
 %  To transform sparse points, movingImage should be an n-by-2 or n-by-3 array
 %
 %
+% Outputs
+% registeredImage - the registred image or image volume
+% log - the transformix log text.
+%
+%
+%
 % Implementation details
 %  The MHD files and other data are written to a temporary directory that is 
 %  cleaned up on exit. This allows the user to delete the data from their elastix 
@@ -54,6 +62,8 @@ function varargout=transformix(movingImage,parameters,verbose)
 %
 % Examples
 % reg=transformix(imageToTransform,paramStructure);
+%
+% reg=transformix(imageToTransform,'/path/to/elastixDir');
 %
 % reg=transformix(imageToTransform,'/path/to/TransformParameters.0.txt');
 %
@@ -105,7 +115,7 @@ if nargin==1
 
         %Find moving images
         outputDir = movingImage;
-        movingFname = dir([outputDir,filesep,'*_moving.mhd']);
+        movingFname = dir(fullfile(outputDir,'*_moving.mhd'));
         if isempty(movingImage)
             error('No moving images exist in directory %s',outputDir)
         end
@@ -116,7 +126,7 @@ if nargin==1
         movingFname=movingFname(1).name;
 
         %Find transform parameters
-        params = dir([outputDir,filesep,'TransformParameters*.txt']);
+        params = dir(fullfile(outputDir,'TransformParameters*.txt'));
         if isempty(params)
             error('No transform parameters found in directory %s',outputDir)
         end
@@ -142,22 +152,52 @@ end
 if nargin>1
 
     %error check: confirm parameter files exist
-    if isstr(parameters) & ~exist(parameters,'file')
-        print('Can not find %s\n', parameters)
-        return
+    if ischar(parameters)
+        if isdir(parameters)
+            if verbose
+                fprintf('%s using parameters in directory %s\n',mfilename,parameters)
+            end
+            paramDir = parameters;
+            clear parameters
+            parameterFiles = dir(fullfile(paramDir,'TransformParameters*.txt'));
+            if isempty(parameterFiles)
+                print('Can not find parameter any files in %s\n', parameters)
+                return
+            end
+
+            parameterFiles = flipud(parameterFiles); %must go from first to last
+
+            %create full paths
+            for ii=1:length(parameterFiles)
+                parameters{ii} = fullfile(paramDir,parameterFiles(ii).name);
+            end
+
+            if verbose
+                fprintf('Found parameter files:\n')
+                cellfun(@(x) fprintf('%s\n',x), parameters)
+                fprintf('\n')
+            end
+
+
+        elseif ~exist(parameters,'file')
+            print('Can not find parameter file %s\n', parameters)
+            return
+        end
     end
+
     if iscell(parameters)
         for ii = 1:length(parameters)
             if ~exist(parameters{ii},'file')
-                print('Can not find %s\n', parameters{ii})
+                fprintf('Can not find %s\n', parameters{ii})
                 return  
             end
         end
     end
 
     %MATLAB should figure out the correct temporary directory on Windows
-    outputDir=sprintf('/tmp/transformix_%s_%d', datestr(now,'yymmddHHMMSS'), round(rand*1E8)); 
-    if ~exist(outputDir)
+    outputDir=fullfile(tempdir,sprintf('transformix_%s_%d', datestr(now,'yymmddHHMMSS'), round(rand*1E8))); 
+
+    if ~exist(outputDir,'dir')
         if ~mkdir(outputDir)
             error('Can''t make data directory %s',outputDir)
         end
@@ -184,7 +224,7 @@ if nargin>1
 
     if isstruct(parameters)
         %Generate an error if the image dimensions are different between the parameters and the supplied matrix
-        if parameters.TransformParameters{end}.FixedImageDimension ~= ndims(movingImage)
+        if size(movingImage,2)>3 & parameters.TransformParameters{end}.FixedImageDimension ~= ndims(movingImage)
             error('Transform Parameters are from an image with %d dimensions but movingImage has %d dimensions',...
                 parameters.TransformParameters{end}.FixedImageDimension, ndims(movingImage))
         end
@@ -192,7 +232,7 @@ if nargin>1
         %Write all the tranform parameters (transformix is fed only the final one but this calls the previous one, and so on)
         for ii=1:length(parameters.TransformParameters)        
             transParam=parameters.TransformParameters{ii};
-            transParamsFname{ii} = sprintf('%s%stmp_params_%d.txt',outputDir,filesep,ii);
+            transParamsFname{ii} = fullfile(outputDir,sprintf('tmp_params_%d.txt',ii));
             if ii>1
                 transParam.InitialTransformParametersFileName=transParamsFname{ii-1};
             end
@@ -200,14 +240,15 @@ if nargin>1
         end
 
         %Build command
-        CMD=sprintf('%s-tp %s ',CMD,transParamsFname{end});
+        CMD=[CMD, '-tp ', transParamsFname{end} ,' '];
 
-    elseif isstr(parameters)
+    elseif ischar(parameters)
         if verbose
             fprintf('Copying %s to %s\n',parameters,outputDir)
         end
-        copyfile(parameters,outputDir) %We've already tested if the parameters file exists    
-        CMD=sprintf('%s-tp %s ',CMD,fullfile(outputDir,parameters));
+        copyfile(parameters,outputDir) %We've already tested if the parameters file exists   
+        [~,pName,pExtension] = fileparts(parameters);
+        CMD=[CMD, '-tp ', fullfile(outputDir,[pName,pExtension]) ,' '];
 
     elseif iscell(parameters)
         %copy parameter files
@@ -220,7 +261,11 @@ if nargin>1
             [fPath,pName,pExtension] = fileparts(parameters{ii});
             copiedLocations{ii} = fullfile(outputDir,[pName,pExtension]);
         end
-        %Modify the parameter files so that they chain together correctly
+        if verbose
+            fprintf('\n')
+        end
+
+        %Modify the parameter files so that they chain together correctly: the files should point to the new copied locations. 
         for ii=1:length(parameters)-1
             changeParameterInElastixFile(copiedLocations{ii},'InitialTransformParametersFileName',copiedLocations{ii+1},verbose)
         end
@@ -247,12 +292,9 @@ end
 fprintf('Running: %s\n',CMD)
 
 if status %Things failed. Oh dear. 
-    if status
-        fprintf('\n\t*** Transform Failed! ***\n%s\n',result)
-    else
-        disp(result)
-    end
-
+    fprintf('\n\t*** Transform Failed! ***\n%s\n',result)
+    registered=[];
+    transformixLog=[];
 else %Things worked! So let's return the transformed image to the user. 
     disp(result)
     if size(movingImage,2)>3 & ~isempty(movingImage)
@@ -273,7 +315,7 @@ else %Things worked! So let's return the transformed image to the user.
         registered=readTransformedPointsFile(fullfile(outputDir,d.name));
     end
         
-    transformixLog=readWholeTextFile([outputDir,filesep,'transformix.log']);
+    transformixLog=readWholeTextFile(fullfile(outputDir,'transformix.log'));
 end
 
 

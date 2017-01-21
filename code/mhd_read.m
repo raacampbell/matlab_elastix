@@ -1,11 +1,11 @@
-function V = mhd_read(info)
+function V = mhd_read(headerInfo)
 % Function for reading the volume of a Insight Meta-Image (.mhd) file
 % 
-% volume = tk_read(file-header)
+% volume = mhd_read(file-header)
 %
 % examples:
-% 1: info = mhd_read_header()
-%    V = mhd_read_volume(info);
+% 1: headerInfo = mhd_read_header()
+%    V = mhd_read_volume(headerInfo);
 %    imshow(squeeze(V(:,:,round(end/2))),[]);
 %
 % 2: V = mhd_read_volume('test.mhd');
@@ -17,41 +17,41 @@ function V = mhd_read(info)
 % Viewer3D by Dirk-Jan Kroon (file: mhd_read_volume.m)
 % Also see: http://ch.mathworks.com/matlabcentral/fileexchange/29344-read-medical-data-3d
 
-if(~isstruct(info))
-    if exist(info,'file')
-        info=mhd_read_header(info); 
+if(~isstruct(headerInfo))
+    if exist(headerInfo,'file')
+        headerInfo=mhd_read_header(headerInfo); 
     else
-        error('Can not find file %s',info)
+        error('Can not find file %s',headerInfo)
     end        
 end
 
-switch(lower(info.DataFile))
+switch(lower(headerInfo.DataFile))
     case 'local'
     otherwise
     % Seperate file
-    info.Filename=fullfile(fileparts(info.Filename),info.DataFile);
+    headerInfo.Filename=fullfile(fileparts(headerInfo.Filename),headerInfo.DataFile);
 end
         
 % Open file
-switch(info.ByteOrder(1))
+switch(headerInfo.ByteOrder(1))
     case ('true')
-        fid=fopen(info.Filename','rb','ieee-be');
+        fid=fopen(headerInfo.Filename,'rb','ieee-be');
     otherwise
-        fid=fopen(info.Filename','rb','ieee-le');
+        fid=fopen(headerInfo.Filename,'rb','ieee-le');
 end
 
-switch(lower(info.DataFile))
+switch(lower(headerInfo.DataFile))
     case 'local'
         % Skip header
-        fseek(fid,info.HeaderSize,'bof');
+        fseek(fid,headerInfo.HeaderSize,'bof');
     otherwise
         fseek(fid,0,'bof');
 end
 
-datasize=prod(info.Dimensions)*info.BitDepth/8;
+datasize=prod(headerInfo.Dimensions)*headerInfo.BitDepth/8;
 
 % Read the Data
-switch(info.DataType)
+switch(headerInfo.DataType)
     case 'char'
         V = int8(fread(fid,datasize,'char')); 
     case {'uchar','uint8'}
@@ -61,7 +61,7 @@ switch(info.DataType)
     case {'ushort','uint16'}
         V = uint16(fread(fid,datasize,'ushort')); 
     case {'int','int32'}
-        V = int32(fread(fid,datasize,'int')); 
+        V = (fread(fid,datasize,'int')); 
     case {'uint','uint32'}
         V = uint32(fread(fid,datasize,'uint')); 
     case {'float','single'}
@@ -69,12 +69,12 @@ switch(info.DataType)
     case 'double'
         V = double(fread(fid,datasize,'double'));
     otherwise
-        error('Could not find data type %s',info.DataType)
+        error('Could not find data type %s',headerInfo.DataType)
 end
 
 fclose(fid);
 
-V = reshape(V,info.Dimensions);
+V = reshape(V,headerInfo.Dimensions);
 
 %flip the first two axes as MHD appears to expect this
 V = permute(V,[2,1,3]);

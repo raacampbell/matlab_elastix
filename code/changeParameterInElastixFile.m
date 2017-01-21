@@ -1,6 +1,6 @@
 function varargout = changeParameterInElastixFile(fname,param,value,verbose)
 % change or add a paramater in an elastix parameter or transform file 
-
+%
 % function fileContents = changeParameterInElastixFile(fname,param,value)	
 %
 % Purpose
@@ -85,7 +85,7 @@ for ii=1:length(fileLines)
 		value = ['"',value,'"'];
 	end
 	if verbose
-		fprintf('Found param %s: replacing %s with %s\n',paramName,valueName,value)
+		fprintf('File: %s - Found param %s: replacing %s with %s\n',fname,paramName,valueName,value)
 	end
 
 	%Build new param string for this line

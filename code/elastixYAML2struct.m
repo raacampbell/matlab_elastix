@@ -5,7 +5,6 @@ function varargout=elastixYAML2struct(fname)
 %
 % Purpose
 % Read MelastiX YAML file and convert to a structure. 
-% Relies on https://github.com/raacampbell13/yamlmatlab
 % In addition to reading the YAML, this function also
 % checks for errors and ensures that the values in the file
 % are reasonable. It does this based on the .valid fields
@@ -25,12 +24,6 @@ function varargout=elastixYAML2struct(fname)
 %
 % Rob Campbell - Basel 2015
    
-
-if ~exist('ReadYaml','file')
-	fprintf('\n\n ***** \n\n')
-	error('Please install the YAML reader from https://github.com/raacampbell13/yamlmatlab')
-end
-
 if nargin==0 | isempty(fname)
 	fname='elastix_default.yml';
 	fprintf('Using the default YAML file: %s\n',fname)
@@ -43,9 +36,8 @@ if ~exist(fname,'file')
 end
 
 
-
 %Read the YAML file into a structure
-yml=ReadYaml(fname);
+yml=mElastixYML.yaml.ReadYaml(fname);
 
 
 
