@@ -26,7 +26,8 @@ At the moment MelastiX does not provide tools to:
 
 1. Place the [Elastix](http://elastix.isi.uu.nl/) binaries in your *system* path. If you don't know how to do that, there's information here for [Windows](http://www.howtogeek.com/118594/how-to-edit-your-system-path-for-easy-command-line-access/) and [Linux](http://unix.stackexchange.com/questions/26047/how-to-correctly-add-a-path-to-path). 
 2. Add the MelastiX *code* directory to your MATLAB path. 
-3. Run the examples in MelastiX_examples. 
+3. Add <a href="https://github.com/ewiger/yamlmatlab">yamlmatlab</a> to your MATLAB path. 
+4. Run the examples in MelastiX_examples. 
 
 ## What to do if the transform fails?
 If you get unexpected results, first check whether the transform parameter file was written properly. If you are providing an Elastix parameter file and not modifying it then you should be fine. However, if you use the .yml approach or modify a parameter file using a structure then it's possible you've found a bug in the writing of the paramater file. To diagnose this, look at the written parameter file by calling elastix.m with a user-defined output path (so the files produced are not deleted)  or use the verbose option in <a href="https://github.com/raacampbell13/matlab_elastix/blob/master/elastix_paramStruct2txt.m">elastix_paramStruct2txt</a>. If you're *still* getting unexpected results then probably you have an issue with Elastix itself: please go the Elastix website for documentation or ask on their forum. 
