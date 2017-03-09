@@ -275,6 +275,11 @@ fclose(cmdFid);
 
 
 % Run the command and report back if it failed
+fprintf('Running: %s\n',CMD)
+if isunix
+    ['LD_LIBRARY_PATH= ', CMD] = CMD;
+end
+
 [status,result]=system(CMD);
 
 if status %Things failed. Oh dear. 
