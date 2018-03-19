@@ -28,6 +28,7 @@ pointsInMovingSpace = csvread('points_on_deformed_dog.csv'); %read sparse points
 clf 
 subplot(2,2,1)
 showImage(fixed,'Fixed image')
+colormap gray
 
 subplot(2,2,2)
 showImage(moving,'Moving image with sparse points')
