@@ -288,8 +288,13 @@ end
 
 %----------------------------------------------------------------------
 % *** Conduct the transformation ***
-[status,result]=system(CMD);
 fprintf('Running: %s\n',CMD)
+if isunix
+    CMD = ['LD_LIBRARY_PATH= ', CMD];
+end
+
+[status,result]=system(CMD);
+
 
 if status %Things failed. Oh dear. 
     fprintf('\n\t*** Transform Failed! ***\n%s\n',result)
