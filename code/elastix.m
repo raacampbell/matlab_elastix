@@ -84,7 +84,12 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,varargin)
 [s,elastix_version] = system('elastix --version');
 r=regexp(elastix_version,'version');
 if isempty(r)
-    fprintf('Unable to find elastix binary in system path. Quitting\n')
+    fprintf('\n*** ERROR: Unable to find elastix binary in system path. Quitting ***\n')
+    return
+end
+
+if nargin==0
+    help(mfilename)
     return
 end
 

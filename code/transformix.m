@@ -94,7 +94,12 @@ function varargout=transformix(movingImage,parameters,verbose)
 [s,transformix_version] = system('transformix --version');
 r=regexp(transformix_version,'version');
 if isempty(r)
-    fprintf('Unable to find transformix binary in system path. Quitting\n')
+    fprintf('\n*** ERROR: Unable to find transformix binary in system path. Quitting ***\n')
+    return
+end
+
+if nargin==0
+    help(mfilename)
     return
 end
 
