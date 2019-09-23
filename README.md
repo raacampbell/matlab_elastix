@@ -29,6 +29,17 @@ At the moment MelastiX does not provide tools to:
 3. Add <a href="https://github.com/raacampbell/yamlmatlab">yamlmatlab</a> to your MATLAB path. 
 4. Run the examples in MelastiX_examples. 
 
+Installing Elastix via the Linux package manager may lead to errors in MATLAB of the sort: `error while loading shared libraries: libANNlib.so`. 
+If so, remove the version installed by the package manager and install manually from the Elastix GitHub page. 
+e.g. 
+```
+$ bzip2 -d elastix-4.9.0-linux.tar.bz2 
+$ tar -xvf elastix-4.9.0-linux.tar 
+$ sudo cp bin/* /usr/local/bin/
+$ sudo cp lib/* /usr/local/lib/
+```
+
+
 ## What to do if the transform fails?
 If you get unexpected results, first check whether the transform parameter file was written properly. If you are providing an Elastix parameter file and not modifying it then you should be fine. However, if you use the .yml approach or modify a parameter file using a structure then it's possible you've found a bug in the writing of the paramater file. To diagnose this, look at the written parameter file by calling elastix.m with a user-defined output path (so the files produced are not deleted)  or use the verbose option in <a href="https://github.com/raacampbell13/matlab_elastix/blob/master/elastix_paramStruct2txt.m">elastix_paramStruct2txt</a>. If you're *still* getting unexpected results then probably you have an issue with Elastix itself: please go the Elastix website for documentation or ask on their forum. 
 
