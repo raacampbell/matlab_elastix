@@ -301,9 +301,7 @@ end
 %----------------------------------------------------------------------
 % *** Conduct the transformation ***
 fprintf('Running: %s\n',CMD)
-if isunix
-    CMD = ['LD_LIBRARY_PATH= ', CMD];
-end
+
 
 [status,result]=system(CMD);
 

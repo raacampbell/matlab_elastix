@@ -288,9 +288,6 @@ fclose(cmdFid);
 
 % Run the command and report back if it failed
 fprintf('Running: %s\n',CMD)
-if isunix
-    CMD=['LD_LIBRARY_PATH= ', CMD];
-end
 
 [status,result]=system(CMD);
 
