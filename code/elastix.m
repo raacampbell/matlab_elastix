@@ -294,6 +294,7 @@ fprintf('Running: %s\n',CMD)
 if status %Things failed. Oh dear. 
     if status
         fprintf('\n\t*** Transform Failed! ***\n%s\n',result)
+        fprintf('\tYou may want to check out the Elastix FAQ: https://github.com/SuperElastix/elastix/wiki/FAQ\n')
     else
         disp(result)
     end
