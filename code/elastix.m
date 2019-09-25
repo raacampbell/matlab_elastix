@@ -344,7 +344,19 @@ else %Things worked! So let's return stuff to the user
             fprintf('WARNING: could find no transformed result images in %s\n',outputDir);
             registered=[];
         else
-            registered=mhd_read([outputDir,filesep,d(end).name]);
+            [~,~,ext]=fileparts(d(end).name);
+            fullPath = [outputDir,filesep,d(end).name];
+            if strcmp(ext,'.mhd')
+                registered=mhd_read(fullPath);
+            elseif strcmp(ext,'.tif') || strcmp(ext,'.tiff') 
+                if exist('load3Dtiff','file')
+                    registered = load3Dtiff(fullPath);
+                else
+                    fprintf('No load3Dtiff for returning TIFF stack found at %s\n',fullPath)
+                    registered=[];
+                end
+            end
+                
         end
     end
 
