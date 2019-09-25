@@ -374,7 +374,7 @@ function im = getImage(fname)
     % Load images of the correct type
     [~,~,ext]=fileparts(fname);
     if strcmp(ext,'.mhd')
-        registered=mhd_read(fname);
+        im=mhd_read(fname);
     elseif strcmp(ext,'.tif') || strcmp(ext,'.tiff') 
-        registered = load3Dtiff(fname);
+        im = load3Dtiff(fname);
     end
