@@ -40,7 +40,7 @@ function [imageStack,imageInfo]=load3Dtiff(FileName,varargin)
 params = inputParser;
 params.CaseSensitive = false;
 params.addParamValue('frames', [], @(x) isnumeric(x) && isscalar(x) || isvector(x));
-params.addParamValue('supressParallelLoading', false, @(x) islogical(x) || x==0 || x==1);
+params.addParamValue('supressParallelLoading', true, @(x) islogical(x) || x==0 || x==1);
 params.addParamValue('padMissingFrames', false, @(x) islogical(x) || x==0 || x==1);
 params.addParamValue('outputType', 'single', @(x) ischar(x) );
 
