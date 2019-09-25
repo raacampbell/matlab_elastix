@@ -349,12 +349,7 @@ else %Things worked! So let's return stuff to the user
             if strcmp(ext,'.mhd')
                 registered=mhd_read(fullPath);
             elseif strcmp(ext,'.tif') || strcmp(ext,'.tiff') 
-                if exist('load3Dtiff','file')
-                    registered = load3Dtiff(fullPath);
-                else
-                    fprintf('No load3Dtiff for returning TIFF stack found at %s\n',fullPath)
-                    registered=[];
-                end
+                registered = load3Dtiff(fullPath);
             end
                 
         end
