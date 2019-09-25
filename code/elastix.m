@@ -335,8 +335,9 @@ else %Things worked! So let's return stuff to the user
         out.currentDir=pwd;
         out.movingFname=movingFname;
         out.targetFname=targetFname;
+    end
 
-    elseif nargout==1      
+    if nargout>0
 
         %return the final transformed image
         d=dir(fullfile(outputDir,'result*.*'));
