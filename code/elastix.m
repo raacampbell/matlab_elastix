@@ -325,7 +325,8 @@ else %Things worked! So let's return stuff to the user
             registered=[];
         else
             for ii=1:length(d)
-                out.transformedImages{ii}=mhd_read([outputDir,filesep,d(ii).name]);
+                fullPath = [outputDir,filesep,d(ii).name];
+                out.transformedImages{ii}=getImage(fullPath);
             end
             registered=out.transformedImages{end};
         end
@@ -345,14 +346,8 @@ else %Things worked! So let's return stuff to the user
             fprintf('WARNING: could find no transformed result images in %s\n',outputDir);
             registered=[];
         else
-            [~,~,ext]=fileparts(d(end).name);
             fullPath = [outputDir,filesep,d(end).name];
-            if strcmp(ext,'.mhd')
-                registered=mhd_read(fullPath);
-            elseif strcmp(ext,'.tif') || strcmp(ext,'.tiff') 
-                registered = load3Dtiff(fullPath);
-            end
-                
+            registered = getImage(fullfile)
         end
     end
 
@@ -372,3 +367,12 @@ end
 if nargout>1
     varargout{2}=out;
 end
+
+
+function im = getImage(fname)
+    [~,~,ext]=fileparts(fname);
+    if strcmp(ext,'.mhd')
+        registered=mhd_read(fname);
+    elseif strcmp(ext,'.tif') || strcmp(ext,'.tiff') 
+        registered = load3Dtiff(fname);
+    end
