@@ -81,7 +81,7 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,varargin)
 % *** Handle default options ***
 
 %Confirm that the elastix binary is present and can run
-[s,elastix_version] = system('elastix --version');
+[~,elastix_version] = system('elastix --version');
 
 r=regexp(elastix_version,'error');
 if ~isempty(r)
@@ -104,7 +104,7 @@ end
 %we assume it's a request for the help or version so we run it 
 if nargin==1 & ischar(movingImage)
     if regexp(movingImage,'^\w')
-        [s,msg]=system(['elastix --',movingImage]);
+        [~,msg]=system(['elastix --',movingImage]);
     end
     fprintf(msg)
     return
@@ -238,7 +238,7 @@ end
 if ~isempty(t0)
     copiedLocations = {}; %Keep track of the locations to which the files are stored
     for ii=1:length(t0)
-        [fPath,pName,pExtension] = fileparts(t0{ii});
+        [~,pName,pExtension] = fileparts(t0{ii});
         copiedLocations{ii} = fullfile(outputDir,['init_',pName,pExtension]);
         if verbose
             fprintf('Copying %s to %s\n',t0{ii},copiedLocations{ii})
@@ -267,7 +267,7 @@ CMD = [CMD,initCMD];
 
 
 if ~isempty(threads)
-    CMD = sprintf('%s -threads %d',CMD,threads)
+    CMD = sprintf('%s -threads %d',CMD,threads);
 end
 
 
@@ -319,7 +319,7 @@ else %Things worked! So let's return stuff to the user
         end
 
         %return the transformed images
-        d=dir(fullfile(outputDir,'result*.mhd'));
+        d=dir(fullfile(outputDir,'result*.*'));
         if isempty(d)
             fprintf('WARNING: could find no transformed result images in %s\n',outputDir);
             registered=[];
@@ -339,7 +339,7 @@ else %Things worked! So let's return stuff to the user
     elseif nargout==1      
 
         %return the final transformed image
-        d=dir(fullfile(outputDir,'result*.mhd'));
+        d=dir(fullfile(outputDir,'result*.*'));
         if isempty(d)
             fprintf('WARNING: could find no transformed result images in %s\n',outputDir);
             registered=[];
@@ -347,8 +347,6 @@ else %Things worked! So let's return stuff to the user
             registered=mhd_read([outputDir,filesep,d(end).name]);
         end
     end
-
-        
 
 end
 
