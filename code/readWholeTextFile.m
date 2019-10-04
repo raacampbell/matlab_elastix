@@ -36,7 +36,7 @@ while ischar(tline)
    txt{n} = tline;
    n=n+1;
 
-   %# grow s if necessary
+   % grow "sizS" if necessary
    if n > sizS
        txt = [txt;cell(preAsn,1)];
        sizS = sizS + preAsn;
