@@ -346,7 +346,7 @@ else %Things worked! So let's return stuff to the user
             registered=[];
         else
             fullPath = [outputDir,filesep,d(end).name];
-            registered = getImage(fullfile)
+            registered = getImage(fullfile);
         end
     end %if nargout
 
