@@ -313,7 +313,7 @@ if status %Things failed. Oh dear.
 else %Things worked! So let's return the transformed image to the user. 
     disp(result)
     if size(movingImage,2)>3 & ~isempty(movingImage)
-        d=dir(fullfile(outputDir,'result.mhd')); 
+        d=dir(fullfile(outputDir,'result.*')); %Allow for MHD or TIFF result image
     elseif size(movingImage,2)<=3 & ~isempty(movingImage)
         d=dir(fullfile(outputDir,'outputpoints.txt')); 
     else
@@ -325,7 +325,11 @@ else %Things worked! So let's return the transformed image to the user.
     end
 
     if size(movingImage,2)>3 %It's an image
-        registered=mhd_read(fullfile(outputDir,d.name));
+        if endsWith(d.name,'.mhd')
+            registered=mhd_read(fullfile(outputDir,d.name));
+        else endsWith(lower(d.name),'.tif')
+            registered=load3Dtiff(fullfile(outputDir,d.name));
+        end
     else %it's a points file
         registered=readTransformedPointsFile(fullfile(outputDir,d.name));
     end
@@ -337,7 +341,7 @@ end
 %Delete temporary dir (only happens if the user used two output args)
 if nargin==2
     fprintf('Deleting temporary directory %s\n',outputDir)
-    rmdir(outputDir,'s')
+    rmdir(outputDir,'s');
 end
 %----------------------------------------------------------------------
 
