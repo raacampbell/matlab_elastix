@@ -28,7 +28,7 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,varargin)
 % paramFile - a) A string defining the name of the YAML file that contains the registration 
 %             parameters. This is converted to an elastix parameter file. Leave empty to 
 %             use the default file supplied with this package (elastix_default.yml)
-%             Must end with ".yml"
+%             Must end with ".yml" (Can be -1 to ignore this: see example below).
 %             b) An elastix parameter file name (relative or full path) or a cell array 
 %               of elastix parameter file names. If a cell array, these are applied in 
 %               order. Names must end with ".txt"
@@ -37,9 +37,9 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,varargin)
 % Inputs [optional]
 % paramstruct - structure containing parameter values for the registration. This is used 
 %          to modify specific parameters which may already have been defined by the .yml 
-%          (paramFile). paramstruct can have a length>1, in which case these structures 
-%          are treated as a request for multiple sequential registration operations. The 
-%          possible values for fields in the the structure can be found in 
+%          (paramFile). paramstruct can be a cell array of length>1, in which case 
+%          these structures are treated as a request for multiple sequential registration 
+%          operations. The possible values for fields in the the structure can be found in 
 %          elastix_default.yml 
 %          *paramstruct is ignored if paramFile is an elastix parameter file.*
 %
@@ -61,11 +61,20 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,varargin)
 % Examples
 % elastix('version')   %prints the version of elastix on your system and exits
 % elastix('help')      %prints the elastix binary's help and exits
+% 
+% Basic:
 % elastix(movImage,refImage,'regDirName',{'./01_affine.txt','./02_bspline.txt}) 
-%
 % elastix(movImage,refImage,[],'elastix_settings.yml')
 % elastix(movImage,refImage,[],'elastix_settings.yml', 'paramstruct', modifierStruct)
 %
+% Advanced - read two parameter files from disk. Modify one and feed in as a 
+%            a structre:
+%  PP{1}=elastix_parameter_read('01_affine.txt');
+%  PP{2}=elastix_parameter_read('02_bspline.txt');
+%  PP{2}.NumberOfResolutions=4;
+%  elastix(S,T,'mlabtest',-1,'paramstruct',PP);
+%  In the line above, the "-1" forces elastix to ignore the default YML structure.
+%  *This is safest* as the feature is only partially complete!
 %
 % Notes:
 % 1. You will need to download the elastix binaries (or compile the source)
@@ -150,15 +159,22 @@ end
 
 %Handle parameter/value pairs
 p = inputParser;
-addOptional(p,'threads', [], @isnumeric)
-addOptional(p,'t0', [])
-addOptional(p,'verbose',0)
-addOptional(p,'paramstruct', [], @isstruct)
+p.addParamValue('threads', [], @isnumeric)
+p.addParamValue('t0', [])
+p.addParamValue('verbose', 0)
+p.addParamValue('paramstruct', [], @(x) isstruct(x) || iscell(x))
+
 parse(p,varargin{:})
 threads = p.Results.threads;
 t0 = p.Results.t0;
 paramstruct = p.Results.paramstruct;
 verbose = p.Results.verbose;
+
+% Convert paramstruct to cell array if needed
+if ~isempty(paramstruct) && isstruct(paramstruct)
+    paramstruct = {paramstruct};
+end
+
 
 %error check: confirm initial parameter files exist
 if ~isempty(t0)
@@ -203,13 +219,13 @@ if isnumeric(fixedImage)
     end
 end
 
-
 %Build the parameter file(s)
-if ischar(paramFile) & strfind(paramFile,'.yml') & ~isempty(paramstruct) %modify settings from YAML with paramstruct
+if ((ischar(paramFile) & strfind(paramFile,'.yml')) | paramFile==-1) & ~isempty(paramstruct) %modify settings from YAML with paramstruct
+    disp('sdfds')
     for ii=1:length(paramstruct)
         paramFname{ii}=sprintf('%s_parameters_%d.txt',dirName,ii);
         paramFname{ii}=fullfile(outputDir,paramFname{ii});
-        elastix_parameter_write(paramFname{ii},paramFile,paramstruct(ii))
+        elastix_parameter_write(paramFname{ii},paramFile,paramstruct{ii})
     end
 
 elseif ischar(paramFile) & strfind(paramFile,'.yml') & isempty(paramstruct) %read YAML with no modifications
@@ -234,7 +250,7 @@ elseif iscell(paramFile) %we have a cell array of elastix parameter files
     end
 
 else
-    error('paramFile format in file not understood')    
+    error('paramFile format in file not understood')
 end
 
 
@@ -276,7 +292,6 @@ if ~isempty(threads)
 end
 
 
-    
 %Loop through, adding each parameter file in turn to the string
 for ii=1:length(paramFname) 
     CMD=[CMD,sprintf('-p %s ', paramFname{ii})];
