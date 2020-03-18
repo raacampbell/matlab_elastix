@@ -11,12 +11,12 @@ function varargout=elastix_parameter_write(elastixParamFname,YAML,userParam)
 % optional (see below).
 %
 % Inputs
-% elastixParamFname - a string defining a path to which the elastix parameter 
+% elastixParamFname - a string defining a path to which the elastix parameter
 %                     file will be written.
 % YAML - the file name of the YAML file to use. If empty, use the default 
 %        file. If -1 and a userParam structure is provided, we don't validate it.
 % userParam - an optional parameter structure to tweak parameter settings without
-%             needing to write to the YAML. Useful for quick tweaks. 
+%             needing to write to the YAML. Useful for quick tweaks.
 %
 % Outputs
 % params = optionally return the parameters
@@ -30,24 +30,23 @@ function varargout=elastix_parameter_write(elastixParamFname,YAML,userParam)
 % elastix_parameter_write('myFname',[],paramStructure)
 % where "paramStructure" is in the format:
 % >> params
-% params =    
+% params =
 %       AutomaticScalesEstimation: 'true'
 %       AutomaticTransformInitialization: 'true'
 %       BSplineInterpolationOrder: 1
 %       DefaultPixelValue: 0
-%       ....
+%       
 %
 % This structure can be produced by hand or by reading in a 
 % parameter file or MelastiX YAML with elastix_parameter_read. 
 % Not all parameters need to be defined in the parameter structure. 
 % Values defined in the structure over-ride the defaults defined 
-% in this function. 
-%    
+% in this function.
+%
 % Rob Campbell - August 2015
 %
-% Also see: 
+% Also see:
 % elastix_parameter_read, elastixYAML2struct, elastix_paramStruct2txt
-  
 
 %Read the parameter file that will go on to be modified (but not on disk)
 if isempty(YAML)

@@ -10,12 +10,6 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,varargin)
 % returned as a variable. Transformed images are returned.
 %
 %
-% Examples
-% elastix('version')   %prints the version of elastix on your system and exits
-% elastix('help')      %prints the elastix binary's help and exits
-% elastix(movImage,refImage,[],'elastix_settings.yml')
-% elastix(movImage,refImage,[],'elastix_settings.yml', 'paramstruct', modifierStruct)
-% 
 % Inputs [required]
 % movingImage - A 2D or 3D matrix corresponding to a 2D image or a 3D volume. 
 %               This is the image that you want to align.
@@ -39,7 +33,7 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,varargin)
 %               of elastix parameter file names. If a cell array, these are applied in 
 %               order. Names must end with ".txt"
 %
-% 
+%
 % Inputs [optional]
 % paramstruct - structure containing parameter values for the registration. This is used 
 %          to modify specific parameters which may already have been defined by the .yml 
@@ -54,23 +48,34 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,varargin)
 % t0      - Relative or absolute path(s) (string or cell array of strings) to files 
 %           defining the initial transform. If transforms are to be chained, list then 
 %           in reverse order (e.g. bspline then affine).
-%            
-% 
+%
+%
+%
 % Outputs
 % registered - the final registered image
 % stats - all stats from the registration, including any intermediate images produced 
 %         during the registration.
 %
-% Rob Campbell - Basel 2015
 %
 %
-% Notes: 
+% Examples
+% elastix('version')   %prints the version of elastix on your system and exits
+% elastix('help')      %prints the elastix binary's help and exits
+% elastix(movImage,refImage,'regDirName',{'./01_affine.txt','./02_bspline.txt}) 
+%
+% elastix(movImage,refImage,[],'elastix_settings.yml')
+% elastix(movImage,refImage,[],'elastix_settings.yml', 'paramstruct', modifierStruct)
+%
+%
+% Notes:
 % 1. You will need to download the elastix binaries (or compile the source)
 % from: http://elastix.isi.uu.nl/ There are versions for all platforms. 
 % 2. Not extensively tested on Windows. 
 % 3. Read the elastix website and elastix_parameter_write.m to
 % learn more about the parameters that can be modified. 
 %
+%
+% Rob Campbell - Basel 2015
 %
 % Dependencies
 % - elastix and transformix binaries in path
