@@ -341,8 +341,9 @@ else %Things worked! So let's return stuff to the user
         out.currentDir=pwd;
         out.movingFname=movingFname;
         out.targetFname=targetFname;
+    end
 
-    elseif nargout==0
+    if nargout>0
 
         %return the final transformed image
         d=dir(fullfile(outputDir,'result*.*'));
@@ -351,7 +352,7 @@ else %Things worked! So let's return stuff to the user
             registered=[];
         else
             fullPath = [outputDir,filesep,d(end).name];
-            registered = getImage(fullfile);
+            registered = getImage(fullPath);
         end
     end %if nargout
 
