@@ -7,13 +7,14 @@ function varargout=elastix_parameter_write(elastixParamFname,YAML,userParam)
 % Purpose
 % writes the elastix parameter file "elastixParamFname" based upon a YAML
 % file and an optional user-supplied structure, userParam, which modifies it.
-%
+% The YAML is used to provide default values and validate settings. This is
+% optional (see below).
 %
 % Inputs
 % elastixParamFname - a string defining a path to which the elastix parameter 
 %                     file will be written.
 % YAML - the file name of the YAML file to use. If empty, use the default 
-%        file. 
+%        file. If -1 and a userParam structure is provided, we don't validate it.
 % userParam - an optional parameter structure to tweak parameter settings without
 %             needing to write to the YAML. Useful for quick tweaks. 
 %
@@ -34,7 +35,7 @@ function varargout=elastix_parameter_write(elastixParamFname,YAML,userParam)
 %       AutomaticTransformInitialization: 'true'
 %       BSplineInterpolationOrder: 1
 %       DefaultPixelValue: 0
-%       .... 
+%       ....
 %
 % This structure can be produced by hand or by reading in a 
 % parameter file or MelastiX YAML with elastix_parameter_read. 
@@ -50,34 +51,47 @@ function varargout=elastix_parameter_write(elastixParamFname,YAML,userParam)
 
 %Read the parameter file that will go on to be modified (but not on disk)
 if isempty(YAML)
-   YAML='elastix_default.yml';
-   fprintf('%s: Using default YAML file: %s\n',mfilename,YAML)
+    YAML='elastix_default.yml';
+    fprintf('%s: Using default YAML file: %s\n',mfilename,YAML)
 end
-params=elastixYAML2struct(YAML); %Default params from a user-supplied YAML or the default YAML
+
+if ischar(YAML)
+    params=elastixYAML2struct(YAML); %Default params from a user-supplied YAML or the default YAML
+end
 
 %If a parameter structure has been provided, validate it using the 
-%default elastix YAML
-if nargin==3
+%default elastix YAML if this is what the user requested.
 
-   [~,defaultYAML]=elastixYAML2struct('elastix_default.yml'); %The raw YAML data with the validation fields
-   defaultKeys=fields(defaultYAML);
-   keys=fields(userParam);
+if isnumeric(YAML) && YAML == -1
+    doNotValidate=true;
+else
+    doNotValidate=false;
+end
 
-   for ii=1:length(keys)
-   	   thisKey = keys{ii};
-   	   if ~isempty(strmatch(thisKey,defaultKeys))
-   	   	   valid=defaultYAML.(thisKey).valid;
-   	   	   if validateElastixParam(userParam.(thisKey),valid)
+if nargin==3 && ~doNotValidate
+
+    [~,defaultYAML]=elastixYAML2struct('elastix_default.yml'); %The raw YAML data with the validation fields
+    defaultKeys=fields(defaultYAML);
+    keys=fields(userParam);
+
+    for ii=1:length(keys)
+        thisKey = keys{ii};
+
+        % Look for keys that weren't supplied a value
+        if ~isempty(strmatch(thisKey,defaultKeys)) & ~isempty(defaultYAML.(thisKey))
+            valid=defaultYAML.(thisKey).valid;
+            if validateElastixParam(userParam.(thisKey),valid)
                     params.(thisKey)=userParam.(thisKey); %replace with our new value
-   	   	   	else
-   	   	   		fprintf('Skipping the key %s: its value did not validate\n', thisKey)
-  	   	   	end   	   	   		
-   	   else
- 	   		fprintf('Skipping the key %s: it is not available in default YAML so can not be validated.\n', thisKey)
-   	   end
+            else
+               fprintf('Skipping the key %s: its value did not validate\n', thisKey)
+            end
+       else
+            fprintf('Skipping the key %s: it is not available in default YAML so can not be validated.\n', thisKey)
+       end
 
-   end %for ii=1:length(keys)
-
+    end %for ii=1:length(keys)
+else
+    params=userParam;
 end %if nargin==3
 
 

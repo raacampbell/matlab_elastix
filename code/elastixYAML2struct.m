@@ -1,4 +1,4 @@
-function varargout=elastixYAML2struct(fname)
+function varargout=elastixYAML2struct(fname,verbose)
 % Read MelastiX YAML file and convert to a structure
 %
 % function [params,origStruct]=elastixYAML2struct(fname)
@@ -24,23 +24,28 @@ function varargout=elastixYAML2struct(fname)
 %
 %
 % Rob Campbell - Basel 2015
-   
+
 if nargin==0 | isempty(fname)
-	fname='elastix_default.yml';
-	fprintf('Using the default YAML file: %s\n',fname)
+    fname='elastix_default.yml';
+    if verbose
+        fprintf('Using the default YAML file: %s\n',fname)
+    end
 end
 
+if nargin<2
+    verbose=false;
+end
 
 if ~exist(fname,'file')
-	fprintf('%s: Unable to find YAML file %s\n',mfilename,fname)
-	return
+    fprintf('%s: Unable to find YAML file %s\n',mfilename,fname)
+    return
 end
 
 
 % Instruct user to download YAML tools if they are missing. 
 % Function will go on to crash on the next line if the tools are missing
 if isempty(which('yaml.ReadYaml'))
-	fprintf('\n\n ** Unable to find yaml tools. Please download from https://github.com/raacampbell/yamlmatlab and add to path ** \n\n')
+    fprintf('\n\n ** Unable to find yaml tools. Please download from https://github.com/raacampbell/yamlmatlab and add to path ** \n\n')
 end
 
 %Read the YAML file into a structure
@@ -53,77 +58,93 @@ keys = fields(yml);
 params = struct;
 
 for ii=1:length(keys)
-	thisKey=keys{ii};
+    thisKey=keys{ii};
 
-	if isempty(yml.(thisKey))
-		continue
-	end
+    if isempty(yml.(thisKey))
+        continue
+    end
 
-	%Get the value and valid values for this key
-	if isfield(yml.(thisKey),'value')
-		value = yml.(thisKey).value;
-	else
-		fprintf('no value for key %s. SKIPPING\n',thisKey)
-		continue
-	end
+    %Get the value and valid values for this key
+    if isfield(yml.(thisKey),'value')
+        value = yml.(thisKey).value;
+    else
+        if verbose
+            fprintf('%s finds no value for key %s. SKIPPING\n',mfilename, thisKey)
+        end
+        continue
+    end
 
-	if isfield(yml.(thisKey),'valid')
-		valid = yml.(thisKey).valid;
-	else
-		fprintf('no field "valid" for key %s. SKIPPING\n',thisKey)
-		continue
-	end
-		
-
-	%Handle a string
-	if isstr(value) 
-		if validateElastixParam(value,valid)
-			params.(thisKey)=value;
-		else
-			fprintf('SKIPPING key %s. Value %s does not validate\n',thisKey,value)
-		end			
-		continue
-	end
+    if isfield(yml.(thisKey),'valid')
+        valid = yml.(thisKey).valid;
+    else
+        if verbose
+            fprintf('%s finds no field "valid" for key %s. SKIPPING\n',mfilename,thisKey)
+        end
+        continue
+    end
 
 
-	%Convert logicals to the strings 'true' or 'false'
-	if islogical(value) 
-		if ~validateElastixParam(value,valid)
-			fprintf('SKIPPING key %s. Value %d does not validate\n',thisKey,value)
-			continue
-		end
-
-		if value
-			params.(thisKey)='true';
-		else
-			params.(thisKey)='false';			
-		end
-		continue
-	end
+    %Handle a string
+    if isstr(value) 
+        if validateElastixParam(value,valid)
+            params.(thisKey)=value;
+        else
+            if verbose
+                fprintf('%s is SKIPPING key %s. Value %s does not validate\n', ...
+                    mfilename,thisKey,value)
+            end
+        end
+        continue
+    end
 
 
-	%Handle numerics. These may exist as either scalars or cell arrays of scalars
-	if isnumeric(value)
-		if validateElastixParam(value,valid)
-			params.(thisKey)=value;
-		else
-			fprintf('SKIPPING key %s. Value %d does not validate\n',thisKey,value)
-		end			
-		continue
-	end
+    %Convert logicals to the strings 'true' or 'false'
+    if islogical(value) 
+        if ~validateElastixParam(value,valid)
+            if verbose
+                fprintf('%s is SKIPPING key %s. Value %d does not validate\n', ...
+                    mfilename,thisKey,value)
+            end
+            continue
+        end
 
-	if iscell(value)
-		if validateElastixParam(value,valid)
-			params.(thisKey)=cell2mat(value);
-		else
-			fprintf('SKIPPING key %s. Value is a cell array and does not validate\n',thisKey)
-		end					
-		continue
-	end
+        if value
+            params.(thisKey)='true';
+        else
+            params.(thisKey)='false';
+        end
+        continue
+    end
 
 
-	%If we have arrived here, there's something wrong
-	fprintf('There is something wrong with key %s\n',thisKey)
+    %Handle numerics. These may exist as either scalars or cell arrays of scalars
+    if isnumeric(value)
+        if validateElastixParam(value,valid)
+            params.(thisKey)=value;
+        else
+            if verbose
+                fprintf('%s SKIPPING key %s. Value %d does not validate\n', ...
+                    mfilename, thisKey, value)
+            end
+        end
+        continue
+    end
+
+    if iscell(value)
+        if validateElastixParam(value,valid)
+            params.(thisKey)=cell2mat(value);
+        else
+            if verbose
+                fprintf('%s is SKIPPING key %s. Value is a cell array and does not validate\n', ...
+                    mfilename, thisKey)
+            end
+        end
+        continue
+    end
+
+
+    %If we have arrived here, there's something wrong
+    fprintf('%s finds there is something wrong with key %s\n',mfilename, thisKey)
 
 
 end
@@ -132,9 +153,9 @@ end
 
 
 if nargout>0
-	varargout{1}=params;
+    varargout{1}=params;
 end
 
 if nargout>1
-	varargout{2}=yml;
+    varargout{2}=yml;
 end
