@@ -121,6 +121,9 @@ if nargin==1 & ischar(movingImage)
         [~,msg]=system(['elastix --',movingImage]);
     end
     fprintf(msg)
+    if nargout>0
+        varargout{1}=chomp(msg);
+    end
     return
 end
 
@@ -150,6 +153,8 @@ end
 if nargin<4
     paramFile=[];
 end
+
+
 if isempty(paramFile)
     defaultParam = 'elastix_default.yml';
     fprintf('Using default parameter file %s\n',defaultParam)
@@ -220,8 +225,8 @@ if isnumeric(fixedImage)
 end
 
 %Build the parameter file(s)
-if ((ischar(paramFile) & strfind(paramFile,'.yml')) | paramFile==-1) & ~isempty(paramstruct) %modify settings from YAML with paramstruct
-    disp('sdfds')
+%modify settings from YAML with paramstruct
+if ~isempty(paramstruct) && (ischar(paramFile) && strfind(paramFile,'.yml')) || (isnumeric(paramFile) && paramFile==-1) 
     for ii=1:length(paramstruct)
         paramFname{ii}=sprintf('%s_parameters_%d.txt',dirName,ii);
         paramFname{ii}=fullfile(outputDir,paramFname{ii});
