@@ -173,7 +173,7 @@ if nargin>1
             clear parameters
             parameterFiles = dir(fullfile(paramDir,'TransformParameters*.txt'));
             if isempty(parameterFiles)
-                print('Can not find parameter any files in %s\n', parameters)
+                fprintf('Can not find any parameter files in %s\n', parameters)
                 return
             end
 
@@ -192,7 +192,7 @@ if nargin>1
 
 
         elseif ~exist(parameters,'file')
-            print('Can not find parameter file %s\n', parameters)
+            fprintf('Can not find parameter file %s\n', parameters)
             return
         end
     end
@@ -214,7 +214,7 @@ if nargin>1
             error('Can''t make data directory %s',outputDir)
         end
     else
-        error('directory %s already exists. odd. Please check what is going on',outputDir)
+        error('Directory %s already exists. odd. Please check what is going on',outputDir)
     end
 
 
