@@ -176,8 +176,11 @@ paramstruct = p.Results.paramstruct;
 verbose = p.Results.verbose;
 
 % Convert paramstruct to cell array if needed
-if ~isempty(paramstruct) && isstruct(paramstruct)
+if ~isempty(paramstruct) && isstruct(paramstruct) && length(paramstruct)==1 
     paramstruct = {paramstruct};
+elseif ~iscell(paramstruct)
+    fprintf('\nelastix.m -- paramstruct should be a cell array. BAILING OUT!\n')
+    return
 end
 
 

@@ -8,9 +8,10 @@ function paramsReporter(params)
 
 
 if length(params)>1
-    fprintf('\n == Elastix parameters == \n');
+    fprintf('\n == Elastix parameters == \n\n');
     for p=1:length(params)
-        paramsReporter(params(p))
+        paramsReporter(params{p})
+        fprintf('\n')
     end
     return
 end
