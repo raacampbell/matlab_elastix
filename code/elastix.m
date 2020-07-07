@@ -345,6 +345,7 @@ else %Things worked! So let's return stuff to the user
 
         %return the transformed images
         d=dir(fullfile(outputDir,'result*.*'));
+        d(cellfun(@(x) endsWith(x,'.raw'),{d.name}))=[]; % remove .raw files
         if isempty(d)
             fprintf('WARNING: could find no transformed result images in %s\n',outputDir);
             registered=[];
