@@ -314,7 +314,7 @@ else %Things worked! So let's return the transformed image to the user.
     disp(result)
     if size(movingImage,2)>3 & ~isempty(movingImage)
         d=dir(fullfile(outputDir,'result.*')); %Allow for MHD or TIFF result image
-    elseif size(movingImage,2)<=3 & ~isempty(movingImage)
+        d(cellfun(@(x) endsWith(x,'.raw'),{d.name}))=[]; % remove .raw files
         d=dir(fullfile(outputDir,'outputpoints.txt')); 
     else
         d=dir(fullfile(outputDir,'deformationField.mhd')); 

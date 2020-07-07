@@ -367,6 +367,7 @@ else %Things worked! So let's return stuff to the user
 
         %return the final transformed image
         d=dir(fullfile(outputDir,'result*.*'));
+        d(cellfun(@(x) endsWith(x,'.raw'),{d.name}))=[]; % remove .raw files
         if isempty(d)
             fprintf('WARNING: could find no transformed result images in %s\n',outputDir);
             registered=[];
@@ -399,20 +400,9 @@ end
 function im = getImage(fname)
     % Load images of the correct type
     [~,~,ext]=fileparts(fname);
-    
-    % if it's a .raw then try to load the mhd
-    if strcmp(ext,'.raw')
-        fname = strrep(fname,'.raw','.mhd');
-        if ~exist(fname,'file')
-            fprintf('Can not find file %s\n', fname)
-            return
-        end
-    end
-    
-    if strcmp(ext,'.mhd') || strcmp(ext,'.raw')
-        disp('load MHD')
+      
+    if strcmp(ext,'.mhd')
         im=mhd_read(fname);
     elseif strcmp(ext,'.tif') || strcmp(ext,'.tiff') 
-        disp('load tiff')
         im = load3Dtiff(fname);
     end
