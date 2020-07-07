@@ -399,8 +399,20 @@ end
 function im = getImage(fname)
     % Load images of the correct type
     [~,~,ext]=fileparts(fname);
-    if strcmp(ext,'.mhd')
+    
+    % if it's a .raw then try to load the mhd
+    if strcmp(ext,'.raw')
+        fname = strrep(fname,'.raw','.mhd');
+        if ~exist(fname,'file')
+            fprintf('Can not find file %s\n', fname)
+            return
+        end
+    end
+    
+    if strcmp(ext,'.mhd') || strcmp(ext,'.raw')
+        disp('load MHD')
         im=mhd_read(fname);
     elseif strcmp(ext,'.tif') || strcmp(ext,'.tiff') 
+        disp('load tiff')
         im = load3Dtiff(fname);
     end
