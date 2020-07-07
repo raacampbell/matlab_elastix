@@ -97,13 +97,13 @@ function varargout=elastix(movingImage,fixedImage,outputDir,paramFile,varargin)
 %Confirm that the elastix binary is present and can run
 [~,elastix_version] = system('elastix --version');
 
-r=regexp(elastix_version,'error');
+r=regexp(elastix_version,'error', 'once');
 if ~isempty(r)
     fprintf('\n*** ERROR starting elastix binary:\n%s\n',elastix_version)
     return
 end
 
-r=regexp(elastix_version,'version');
+r=regexp(elastix_version,'version', 'once');
 if isempty(r)
     fprintf('\n*** ERROR: Unable to find elastix binary in system path. Quitting ***\n')
     return
@@ -116,7 +116,7 @@ end
 
 %If the user supplies one input argument only and this is is a string then
 %we assume it's a request for the help or version so we run it 
-if nargin==1 & ischar(movingImage)
+if nargin==1 && ischar(movingImage)
     if regexp(movingImage,'^\w')
         [~,msg]=system(['elastix --',movingImage]);
     end
@@ -164,10 +164,10 @@ end
 
 %Handle parameter/value pairs
 p = inputParser;
-p.addParamValue('threads', [], @isnumeric)
-p.addParamValue('t0', [])
-p.addParamValue('verbose', 0)
-p.addParamValue('paramstruct', [], @(x) isstruct(x) || iscell(x))
+p.addParameter('threads', [], @isnumeric)
+p.addParameter('t0', [])
+p.addParameter('verbose', 0)
+p.addParameter('paramstruct', [], @(x) isstruct(x) || iscell(x))
 
 parse(p,varargin{:})
 threads = p.Results.threads;
@@ -226,18 +226,18 @@ end
 
 %Build the parameter file(s)
 %modify settings from YAML with paramstruct
-if ~isempty(paramstruct) && (ischar(paramFile) && strfind(paramFile,'.yml')) || (isnumeric(paramFile) && paramFile==-1) 
+if ~isempty(paramstruct) && (ischar(paramFile) && endsWith(paramFile,'.yml')) || (isnumeric(paramFile) && paramFile==-1) 
     for ii=1:length(paramstruct)
         paramFname{ii}=sprintf('%s_parameters_%d.txt',dirName,ii);
         paramFname{ii}=fullfile(outputDir,paramFname{ii});
         elastix_parameter_write(paramFname{ii},paramFile,paramstruct{ii})
     end
 
-elseif ischar(paramFile) & strfind(paramFile,'.yml') & isempty(paramstruct) %read YAML with no modifications
+elseif ischar(paramFile) && endsWith(paramFile,'.yml') && isempty(paramstruct) %read YAML with no modifications
     paramFname{1} = fullfile(outputDir,sprintf('%s_parameters_%d.txt',dirName,1));
     elastix_parameter_write(paramFname{1},paramFile)
 
-elseif (ischar(paramFile) & strfind(paramFile,'.txt')) %we have an elastix parameter file
+elseif (ischar(paramFile) && endsWith(paramFile,'.txt')) %we have an elastix parameter file
     if ~strcmp(outputDir,'.')
         copyfile(paramFname,outputDir)
         paramFname{1} = fullfile(outputDir,paramFname);
@@ -400,7 +400,6 @@ end
 function im = getImage(fname)
     % Load images of the correct type
     [~,~,ext]=fileparts(fname);
-      
     if strcmp(ext,'.mhd')
         im=mhd_read(fname);
     elseif strcmp(ext,'.tif') || strcmp(ext,'.tiff') 
