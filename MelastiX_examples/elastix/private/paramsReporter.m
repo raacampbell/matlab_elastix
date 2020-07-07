@@ -32,4 +32,3 @@ for ii=1:length(pFields)
         fprintf('%s: %d\n',pFields{ii},params.(pFields{ii}));
     end
 end
-

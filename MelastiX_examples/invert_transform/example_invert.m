@@ -65,6 +65,6 @@ hold off
 
 
 function showImage(im,thisTitle)
-	imagesc(im)
-	axis equal off
-	title(thisTitle)
+    imagesc(im)
+    axis equal off
+    title(thisTitle)
