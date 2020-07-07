@@ -165,7 +165,7 @@ if nargin>1
 
     %error check: confirm parameter files exist
     if ischar(parameters)
-        if isdir(parameters)
+        if isfolder(parameters)
             if verbose
                 fprintf('%s using parameters in directory %s\n',mfilename,parameters)
             end
