@@ -192,7 +192,7 @@ if ~isempty(t0)
             print('Can not find initial transform %s\n', t0{ii})
             return
         end
-    end    
+    end
 end
 
 

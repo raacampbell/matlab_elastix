@@ -48,5 +48,5 @@ fprintf('Calculated row offset is %0.1f. True value is %d\n',offsets(2),myOffset
 fprintf('Calculated col offset is %0.1f. True value is %d\n',offsets(1),myOffsets(2))
 
 if any((myOffsets-fliplr(offsets))>1)
-	fprintf('\nRegistration errors remain over a pixel. Performance could be better. You could try tuning the parameters.\n\n')
+    fprintf('\nRegistration errors remain over a pixel. Performance could be better. You could try tuning the parameters.\n\n')
 end

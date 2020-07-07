@@ -53,5 +53,5 @@ set(gca,'Clim',[0,255])
 
 
 if nargout>0
-	varargout{1}=out;
+    varargout{1}=out;
 end

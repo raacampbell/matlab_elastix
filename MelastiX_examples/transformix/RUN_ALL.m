@@ -1,4 +1,3 @@
-
 function RUN_ALL
 
 applyLenaTransform2Dog

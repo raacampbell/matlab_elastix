@@ -119,7 +119,7 @@ if nargin<3
 end
 
 %Handle case where the user supplies only a path to a directory
-if nargin==1 
+if nargin==1
     if ischar(movingImage)
         if ~exist(movingImage,'dir')
             error('Can not find directory %s',movingImage)
@@ -153,7 +153,7 @@ if nargin==1
     else
         error('Expected movingImage to be a string corresponding to a directory')
     end
-        
+
 end
 
 
@@ -354,5 +354,4 @@ end
 if nargout>1
     varargout{2}=transformixLog;
 end
-
 

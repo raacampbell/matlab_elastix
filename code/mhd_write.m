@@ -30,15 +30,15 @@ function mhd_write(im,fname,elementSpacing)
 
 
 if ~isnumeric(im)
-	error('im should be a matrix')
+    error('im should be a matrix')
 end
 
 if ndims(im)>3
-	error('Not designed to handle more than three dimensions. You''d best get hacking!')
+    error('Not designed to handle more than three dimensions. You''d best get hacking!')
 end
 
 if ~ischar(fname)
-	error('fname should be a string')
+    error('fname should be a string')
 end
 
 %strip any extensions from fname, should they be present
@@ -46,8 +46,8 @@ end
 fname = fullfile(thisPath,fname);
 
 if nargin<3
-	elementSpacing = [1,1,1];
-	elementSpacing = elementSpacing(1:ndims(im));
+    elementSpacing = [1,1,1];
+    elementSpacing = elementSpacing(1:ndims(im));
 end
 
 
@@ -62,15 +62,15 @@ cnt=fwrite(fid,im,class(im));
 fclose(fid);
 
 switch class(im)
-	case 'uint8',  dtype='uchar';
-	case 'int16', dtype='short';
-	case 'uint16', dtype='ushort';
-	case 'uint32', dtype='int';
+    case 'uint8',  dtype='uchar';
+    case 'int16', dtype='short';
+    case 'uint16', dtype='ushort';
+    case 'uint32', dtype='int';
     case 'int32', dtype='int';
-	case 'single', dtype='float';
-	case 'double', dtype='double';
-	otherwise
-		error('conversion for data type %s unknown',class(im))
+    case 'single', dtype='float';
+    case 'double', dtype='double';
+    otherwise
+        error('conversion for data type %s unknown',class(im))
 end
 
 %convert elementSpacing to a string to make it easier to handle below

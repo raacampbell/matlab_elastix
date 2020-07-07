@@ -84,5 +84,3 @@ for ii=1:length(R)
 end
 
 fclose(fid);
-
-

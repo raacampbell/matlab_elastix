@@ -37,9 +37,9 @@ nSamples=[50,100,200,500];
 
 ind=3;
 for theseNSamples=nSamples
-	p.NumberOfSpatialSamples=theseNSamples;
-	runExampleLena(lenaTrans,lena,p,ind)
-	ind=ind+1;
+    p.NumberOfSpatialSamples=theseNSamples;
+    runExampleLena(lenaTrans,lena,p,ind)
+    ind=ind+1;
 end
 
 
@@ -47,14 +47,14 @@ end
 
 
 function runExampleLena(lenaTrans,lena,p,ind)
-	tic
-	fprintf('\nStarting registration\n')
-	paramsReporter(p)	
-	reg=elastix(lenaTrans,lena,[],'elastix_default.yml','paramstruct',p);
-	fprintf('Finished registration in %d seconds\n', round(toc))
+    tic
+    fprintf('\nStarting registration\n')
+    paramsReporter(p)   
+    reg=elastix(lenaTrans,lena,[],'elastix_default.yml','paramstruct',p);
+    fprintf('Finished registration in %d seconds\n', round(toc))
 
-	subplot(2,3,ind)
-	imagesc(reg), axis off equal 
-	title(sprintf('CORRECTED: %d samples',p.NumberOfSpatialSamples))
-	drawnow
-	set(gca,'Clim',[0,255])
+    subplot(2,3,ind)
+    imagesc(reg), axis off equal 
+    title(sprintf('CORRECTED: %d samples',p.NumberOfSpatialSamples))
+    drawnow
+    set(gca,'Clim',[0,255])

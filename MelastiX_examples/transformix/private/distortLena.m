@@ -1,5 +1,5 @@
 function lenaTrans = distortLena(lena)
-% function lenaTrans = distortLena(lena)	
+% function lenaTrans = distortLena(lena)
 %
 %
 % Distort lena

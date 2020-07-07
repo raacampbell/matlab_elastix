@@ -22,7 +22,7 @@ if(~isstruct(headerInfo))
         headerInfo=mhd_read_header(headerInfo); 
     else
         error('Can not find file %s',headerInfo)
-    end        
+    end
 end
 
 switch(lower(headerInfo.DataFile))
@@ -31,7 +31,7 @@ switch(lower(headerInfo.DataFile))
     % Seperate file
     headerInfo.Filename=fullfile(fileparts(headerInfo.Filename),headerInfo.DataFile);
 end
-        
+
 % Open file
 switch(headerInfo.ByteOrder(1))
     case ('true')
