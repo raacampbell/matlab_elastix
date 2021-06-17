@@ -244,8 +244,8 @@ elseif ischar(paramFile) && endsWith(paramFile,'.yml') && isempty(paramstruct) %
 
 elseif (ischar(paramFile) && endsWith(paramFile,'.txt')) %we have an elastix parameter file
     if ~strcmp(outputDir,'.')
-        copyfile(paramFname,outputDir)
-        paramFname{1} = fullfile(outputDir,paramFname);
+        copyfile(paramFile,outputDir)
+        paramFname{1} = fullfile(outputDir,paramFile);
     end
 
 elseif iscell(paramFile) %we have a cell array of elastix parameter files
