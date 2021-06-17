@@ -292,7 +292,7 @@ end
 
 
 %Build the the appropriate command
-CMD=sprintf('elastix -f %s.mhd -m %s.mhd -out %s ',...
+CMD=sprintf('elastix -f "%s.mhd" -m "%s.mhd" -out "%s" ',...
             fullfile(outputDir,targetFname),...
             fullfile(outputDir,movingFname),...
             outputDir);
@@ -306,7 +306,7 @@ end
 
 %Loop through, adding each parameter file in turn to the string
 for ii=1:length(paramFname) 
-    CMD=[CMD,sprintf('-p %s ', paramFname{ii})];
+    CMD=[CMD,sprintf('-p "%s" ', paramFname{ii})];
 end
 
 %store a copy of the command to the directory
