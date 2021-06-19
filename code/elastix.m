@@ -245,7 +245,9 @@ elseif ischar(paramFile) && endsWith(paramFile,'.yml') && isempty(paramstruct) %
 elseif (ischar(paramFile) && endsWith(paramFile,'.txt')) %we have an elastix parameter file
     if ~strcmp(outputDir,'.')
         copyfile(paramFile,outputDir)
-        paramFname{1} = fullfile(outputDir,paramFile);
+        % Build the correct parameter file name with path pointing to output dir
+        [~,f,e] = fileparts(paramFile);
+        paramFname{1} = fullfile(outputDir,[f,e]);
     else
         paramFname{1} = paramFile;
     end
