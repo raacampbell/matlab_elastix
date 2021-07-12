@@ -39,6 +39,9 @@ $ sudo cp bin/* /usr/local/bin/
 $ sudo cp lib/* /usr/local/lib/
 ```
 
+If everything is installed correctly, running `elastix('version')` in MATLAB should bring up the Elastix help text. 
+If that does not appear and you get errors associated with `libstdc++.so.6` being an incorrect version, then try the suggestions shown here:
+https://uk.mathworks.com/matlabcentral/answers/329796-issue-with-libstdc-so-6
 
 ## What to do if the transform fails?
 If you get unexpected results, first check whether the transform parameter file was written properly. If you are providing an Elastix parameter file and not modifying it then you should be fine. However, if you use the .yml approach or modify a parameter file using a structure then it's possible you've found a bug in the writing of the paramater file. To diagnose this, look at the written parameter file by calling elastix.m with a user-defined output path (so the files produced are not deleted)  or use the verbose option in <a href="https://github.com/raacampbell/matlab_elastix/blob/master/code/elastix_paramStruct2txt.m">elastix_paramStruct2txt</a>. If you're *still* getting unexpected results then probably you have an issue with Elastix itself: please go the Elastix website for documentation or ask on their forum. 
