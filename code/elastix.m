@@ -122,7 +122,7 @@ if nargin==1 && ischar(movingImage)
     end
     fprintf(msg)
     if nargout>0
-        varargout{1}=chomp(msg);
+        varargout{1}=strip(msg);
     end
     return
 end
