@@ -56,6 +56,8 @@ $ sudo ln -s /usr/lib/x86_64-linux-gnu/libstdc++.so.6 ./
 ## What to do if the transform fails?
 If you get unexpected results, first check whether the transform parameter file was written properly. If you are providing an Elastix parameter file and not modifying it then you should be fine. However, if you use the .yml approach or modify a parameter file using a structure then it's possible you've found a bug in the writing of the paramater file. To diagnose this, look at the written parameter file by calling elastix.m with a user-defined output path (so the files produced are not deleted)  or use the verbose option in <a href="https://github.com/raacampbell/matlab_elastix/blob/master/code/elastix_paramStruct2txt.m">elastix_paramStruct2txt</a>. If you're *still* getting unexpected results then probably you have an issue with Elastix itself: please go the Elastix website for documentation or ask on their forum. 
 
+## Known issues
+The paths in the Transform files are absolute so if you have multiple transforms and you run transformix on them, the process will only succeed if the files are in their original locations. If the files have moved, you will need to change the path(s) at `InitialTransformParametersFileName`. 
 
 ## MATLAB Versions
 You will need at least MATLAB version R2017b.
