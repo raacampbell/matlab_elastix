@@ -3,20 +3,24 @@ function updateTransformFileDirFields(tDir)
 %
 % function melastix.updateTransformFileDirFields(tDir)
 %
+%
 % Purpose
 % If a directory containing an elastix registration is moved, the paths in the transform 
 % files will be wrong. So if there are multiple tranforms, running transformix will fail. 
 % This function corrects this, changing the path so it matches the directory the file 
 % is in. 
 %
+%
 % Inputs [optional]
 % tDir - path to elastix registration dir
+%
 %
 % Outputs
 % None
 %
-% Rob Campbell - SWC 2021
 %
+% Rob Campbell - SWC 2021
+
 
 
 if ~isfolder(tDir)
