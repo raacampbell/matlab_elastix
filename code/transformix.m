@@ -91,15 +91,15 @@ function varargout=transformix(movingImage,parameters,verbose)
 
 
 %Confirm that the transformix binary is present
-[s,transformix_version] = system('transformix --version');
+[~,transformix_version] = system('transformix --version');
 
-r=regexp(transformix_version,'error');
+r=regexp(transformix_version,'error', 'once');
 if ~isempty(r)
     fprintf('\n*** ERROR starting transformix binary:\n%s\n',transformix_version)
     return
 end
 
-r=regexp(transformix_version,'version');
+r=regexp(transformix_version,'version', 'once');
 if isempty(r)
     fprintf('\n*** ERROR: Unable to find transformix binary in system path. Quitting ***\n')
     return
@@ -119,8 +119,8 @@ if nargin<3
 end
 
 %Handle case where the user supplies only a path to a directory
-if nargin==1 
-    if isstr(movingImage)
+if nargin==1
+    if ischar(movingImage)
         if ~exist(movingImage,'dir')
             error('Can not find directory %s',movingImage)
         end
@@ -145,7 +145,7 @@ if nargin==1
         paramFname = params(end).name; %Will apply just the last, final, set of parameters. 
 
         %Build command
-        CMD=sprintf('transformix -in %s%s%s -out %s -tp %s%s%s',...
+        CMD=sprintf('transformix -in "%s%s%s" -out "%s" -tp "%s%s%s"',...
             outputDir,filesep,movingFname,...
             outputDir,...
             outputDir,filesep,paramFname);
@@ -153,7 +153,7 @@ if nargin==1
     else
         error('Expected movingImage to be a string corresponding to a directory')
     end
-        
+
 end
 
 
@@ -165,7 +165,7 @@ if nargin>1
 
     %error check: confirm parameter files exist
     if ischar(parameters)
-        if isdir(parameters)
+        if isfolder(parameters)
             if verbose
                 fprintf('%s using parameters in directory %s\n',mfilename,parameters)
             end
@@ -225,7 +225,7 @@ if nargin>1
         movingFname=fullfile(outputDir,'tmp_moving');
         mhd_write(movingImage,movingFname);
         CMD = sprintf('transformix -in %s.mhd ',movingFname);
-    elseif size(movingImage,2)==2 | size(movingImage,2)==3 %It's sparse points
+    elseif size(movingImage,2)==2 || size(movingImage,2)==3 %It's sparse points
         movingFname=fullfile(outputDir,'tmp_moving.txt');
         writePointsFile(movingFname,movingImage)
         CMD = sprintf('transformix -def %s ',movingFname);
@@ -236,7 +236,7 @@ if nargin>1
 
     if isstruct(parameters)
         %Generate an error if the image dimensions are different between the parameters and the supplied matrix
-        if size(movingImage,2)>3 & parameters.TransformParameters{end}.FixedImageDimension ~= ndims(movingImage)
+        if size(movingImage,2)>3 && parameters.TransformParameters{end}.FixedImageDimension ~= ndims(movingImage)
             error('Transform Parameters are from an image with %d dimensions but movingImage has %d dimensions',...
                 parameters.TransformParameters{end}.FixedImageDimension, ndims(movingImage))
         end
@@ -270,7 +270,7 @@ if nargin>1
                 fprintf('Copying %s to %s\n',parameters{ii},outputDir)
             end
             copyfile(parameters{ii},outputDir)
-            [fPath,pName,pExtension] = fileparts(parameters{ii});
+            [~,pName,pExtension] = fileparts(parameters{ii});
             copiedLocations{ii} = fullfile(outputDir,[pName,pExtension]);
         end
         if verbose
@@ -312,9 +312,10 @@ if status %Things failed. Oh dear.
     transformixLog=[];
 else %Things worked! So let's return the transformed image to the user. 
     disp(result)
-    if size(movingImage,2)>3 & ~isempty(movingImage)
+    if size(movingImage,2)>3 && ~isempty(movingImage)
         d=dir(fullfile(outputDir,'result.*')); %Allow for MHD or TIFF result image
-    elseif size(movingImage,2)<=3 & ~isempty(movingImage)
+        d(cellfun(@(x) endsWith(x,'.raw'),{d.name}))=[]; % remove .raw files
+    elseif size(movingImage,2)<=3 && ~isempty(movingImage)
         d=dir(fullfile(outputDir,'outputpoints.txt')); 
     else
         d=dir(fullfile(outputDir,'deformationField.mhd')); 
@@ -353,5 +354,4 @@ end
 if nargout>1
     varargout{2}=transformixLog;
 end
-
 

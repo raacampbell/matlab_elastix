@@ -33,14 +33,14 @@ function stats=invertElastixTransform(transformDir,outputDir)
 
 
 if nargin<2
-	outputDir=[];
+    outputDir=[];
 end
 
 
 %Find the log file
 logFile = fullfile(transformDir,'elastix.log');
 if ~exist(logFile,'file')
-	error('Can not find elastix.log in %s',transformDir)
+    error('Can not find elastix.log in %s',transformDir)
 end
 
 %From the log file we need to extract the fixed image and the parameter names
@@ -50,18 +50,18 @@ fid = fopen(logFile,'r');
 %Get fixed file name
 tline = fgetl(fid);
 while ischar(tline)
-	if strfind(tline,'-f  ')
-		fixedFile=regexp(tline,'^-f +(.*)','tokens');
-		fixedFile = fixedFile{1}{1};
+    if strfind(tline,'-f  ')
+        fixedFile=regexp(tline,'^-f +(.*)','tokens');
+        fixedFile = fixedFile{1}{1};
 
-		if ~exist(fixedFile,'file')
-			error('Can not find fixed file at %s', fixedFile)
-		end
+        if ~exist(fixedFile,'file')
+            error('Can not find fixed file at %s', fixedFile)
+        end
 
-		fseek(fid,0,'bof');
-		break
-	end
-	tline = fgetl(fid);
+        fseek(fid,0,'bof');
+        break
+    end
+    tline = fgetl(fid);
 end
 
 
@@ -71,23 +71,23 @@ end
 tline = fgetl(fid);
 params = {};
 while ischar(tline)
-	if strfind(tline,'-p  ')
-		thisFile=regexp(tline,'^-p +(.*)','tokens');
-		thisFile = thisFile{1}{1};
+    if strfind(tline,'-p  ')
+        thisFile=regexp(tline,'^-p +(.*)','tokens');
+        thisFile = thisFile{1}{1};
 
-		if ~exist(thisFile,'file')
-			error('Can not find parameter file at %s', thisFile)
-		end
+        if ~exist(thisFile,'file')
+            error('Can not find parameter file at %s', thisFile)
+        end
 
-		params = [params, thisFile];
+        params = [params, thisFile];
 
-	end
-	if strfind(tline,'== start of ')
-		fseek(fid,0,'bof');
-		break
-	end
+    end
+    if strfind(tline,'== start of ')
+        fseek(fid,0,'bof');
+        break
+    end
 
-	tline = fgetl(fid);
+    tline = fgetl(fid);
 end
 
 fclose(fid);
@@ -98,15 +98,15 @@ fclose(fid);
 files = dir(fullfile(transformDir,'TransformParameters.*'));
 
 if length(files) ~= length(params)
-	error('Did not find as many transform coefs as parameter files')
+    error('Did not find as many transform coefs as parameter files')
 end
 
 coefFiles = fliplr({files.name});
 for ii=1:length(coefFiles)
-	coefFiles{ii} = fullfile(transformDir,coefFiles{ii});
-	if ~exist(coefFiles{ii},'file')
-		error('Can not find coef file at %s', coefFiles{ii})
-	end
+    coefFiles{ii} = fullfile(transformDir,coefFiles{ii});
+    if ~exist(coefFiles{ii},'file')
+        error('Can not find coef file at %s', coefFiles{ii})
+    end
 end
 
 
@@ -116,19 +116,19 @@ end
 fprintf('Using fixed file: %s\n',fixedFile)
 fprintf('Using parameter files:')
 for ii=1:length(params)
-	fprintf(' %s', params{ii})
-	if ii<length(params)
-		fprintf(',')
-	end
+    fprintf(' %s', params{ii})
+    if ii<length(params)
+        fprintf(',')
+    end
 end
 fprintf('\n')
 
 fprintf('Using coef files:')
 for ii=1:length(coefFiles)
-	fprintf(' %s', coefFiles{ii})
-	if ii<length(coefFiles)
-		fprintf(',')
-	end
+    fprintf(' %s', coefFiles{ii})
+    if ii<length(coefFiles)
+        fprintf(',')
+    end
 end
 fprintf('\n')
 

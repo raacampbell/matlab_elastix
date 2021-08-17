@@ -84,4 +84,3 @@ fid=fclose(fid);
 if fid<0 
     fprintf('Warning: Failed to close %s\n',fname)
 end
-

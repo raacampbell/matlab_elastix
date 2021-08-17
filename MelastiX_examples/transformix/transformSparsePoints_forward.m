@@ -42,4 +42,3 @@ paramFiles = {'./applyLenaTransform2Dog_params/TransformParameters.1.txt','./app
 reg=transformix(rawPoints,paramFiles,1);
 hold on
 transP=plot(reg.OutputIndexFixed(:,1),reg.OutputIndexFixed(:,2),'.g');
-

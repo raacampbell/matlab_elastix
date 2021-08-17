@@ -23,30 +23,28 @@ title('Original')
 lenaTrans=distortLena(lena);
 
 
-
-
 subplot(2,2,2)
 imagesc(lenaTrans), axis off equal
 title('Transformed')
 drawnow
 
 %define the two sets of transforms
-n=1;
-p(n).Transform='AffineTransform';
-p(n).AutomaticTransformInitialization=true;
-p(n).MaximumNumberOfIterations=400;
-p(n).NumberOfSpatialSamples=1E3;
+a.Transform='AffineTransform';
+a.AutomaticTransformInitialization=true;
+a.MaximumNumberOfIterations=400;
+a.NumberOfSpatialSamples=1E3;
 
 n=2;
-p(n).Transform='BSplineTransform';
-p(n).MaximumNumberOfIterations=1E3;
-p(n).NumberOfSpatialSamples=1E3;
-p(n).SP_a=4000;
-
+b.Transform='BSplineTransform';
+b.MaximumNumberOfIterations=1E3;
+b.NumberOfSpatialSamples=1E3;
+b.SP_a=4000;
+p = {a,b};
 
 tic
 fprintf('\nStarting registration\n')
 paramsReporter(p)
+
 [~,out]=elastix(lenaTrans,lena,[],'elastix_default.yml','paramstruct',p);
 fprintf('Finished registration in %d seconds\n', round(toc))
 
@@ -67,5 +65,5 @@ set(gca,'Clim',[0,255])
 
 
 if nargout>0
-	varargout{1}=out;
+    varargout{1}=out;
 end

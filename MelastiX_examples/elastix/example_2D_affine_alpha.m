@@ -36,9 +36,9 @@ alphas=[0.2, 0.3, 0.4, 0.6];
 
 ind=3;
 for thisAlpha=alphas
-	p.SP_alpha=thisAlpha; 
-	runExampleLena(lenaTrans,lena,p,ind)
-	ind=ind+1;	
+    p.SP_alpha=thisAlpha;
+    runExampleLena(lenaTrans,lena,p,ind)
+    ind=ind+1;
 end
 
 
@@ -46,16 +46,15 @@ end
 
 
 function runExampleLena(lenaTrans,lena,p,ind)
-	tic
-	fprintf('\nStarting registration\n')
-	paramsReporter(p)
-	reg=elastix(lenaTrans,lena,[],'elastix_default.yml','paramstruct',p);
+    tic
+    fprintf('\nStarting registration\n')
+    paramsReporter(p)
+    reg=elastix(lenaTrans,lena,[],'elastix_default.yml','paramstruct',p);
 
-	fprintf('Finished registration in %d seconds\n', round(toc))
+    fprintf('Finished registration in %d seconds\n', round(toc))
 
-	subplot(2,3,ind)
-	imagesc(reg), axis off equal 
-	title(sprintf('CORRECTED: alpha=%0.1f',p.SP_alpha))
-	set(gca,'Clim',[0,255])
-	drawnow
-
+    subplot(2,3,ind)
+    imagesc(reg), axis off equal 
+    title(sprintf('CORRECTED: alpha=%0.1f',p.SP_alpha))
+    set(gca,'Clim',[0,255])
+    drawnow

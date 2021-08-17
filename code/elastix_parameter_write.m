@@ -77,7 +77,7 @@ if nargin==3 && ~doNotValidate
         thisKey = keys{ii};
 
         % Look for keys that weren't supplied a value
-        if ~isempty(strmatch(thisKey,defaultKeys)) & ~isempty(defaultYAML.(thisKey))
+        if ~isempty(strmatch(thisKey,defaultKeys)) && ~isempty(defaultYAML.(thisKey))
             valid=defaultYAML.(thisKey).valid;
             if validateElastixParam(userParam.(thisKey),valid)
                     params.(thisKey)=userParam.(thisKey); %replace with our new value
