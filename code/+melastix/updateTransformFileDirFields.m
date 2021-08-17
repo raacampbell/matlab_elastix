@@ -50,9 +50,9 @@ function replace(transformFname,tDir)
 
     % Read the file
     transformFname = fullfile(tDir,transformFname);
-    fContents = fileread(transformFname)
+    fContents = fileread(transformFname);
 
-    tok=regexp(fContents,' *InitialTransformParametersFileName "(.*?)"','tokens')
+    tok=regexp(fContents,' *InitialTransformParametersFileName "(.*?)"','tokens');
 
     if isempty(tok)
         return
@@ -68,7 +68,7 @@ function replace(transformFname,tDir)
     [~,fname,ext]=fileparts(tok);
     newFname = fullfile(tDir,[fname,ext]);
     newLineInFile = sprintf('InitialTransformParametersFileName "%s"',newFname);
-    NEW=regexprep(fContents,'InitialTransformParametersFileName ".*?"',newLineInFile)
+    NEW=regexprep(fContents,'InitialTransformParametersFileName ".*?"',newLineInFile);
 
 
     % If we are here then we should replace the contents of the the transform file
